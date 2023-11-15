@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SE 3316 Lab 1</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="">
+        <h1>Maddy's Super Hero Search</h1>
+    </div>
+<div class="body">
+    <div class="topnav">
+        <button id="hero-info" class ="topBtn">Search Hero Info</button>
+        <button id="hero-matches" class ="topBtn">Search Hero Matches</button>
+        <button id="manage-lists"class ="topBtn">Manage Hero Lists</button><br>
+    </div>
+    
+    <div id="hero-info-page">
+        <h2>Info Search</h2>
+        <!--<label for="superheroId">Enter Superhero ID:</label>
+        <input type="text" id="superheroId" placeholder="Superhero ID">
+        <button id="searchBtn">Search</button><br>-->
+        <div id="info-search-div">
+            <label for="searchFor">Search Heroes By:</label>
+            <select id="searchFor">
+                <option id="name-search" value="name">Name</option>
+                <option id="race-search">Race</option>
+                <option id="publisher-search">Publisher</option>
+                <option id="power-search">Power</option>
+            </select>
+            <label id="search-by-label"> Name: </label>
+            <input type="text" id="search-by-input" placeholder="Hero Name">
+            <label for="sortBy">Sort Heroes By:</label>
+            <select id="sortBy">
+                <option id="no-sort" value="None">None</option>
+                <option id="name-sort" value="name">Name</option>
+                <option id="race-sort" value="Race">Race</option>
+                <option id="publisher-sort" value="Publisher">Publisher</option>
+                <option id="power-sort" value="power">Power</option>
+            </select>
+            <button id="search-info">Search</button>
+        </div>
+        <div id="info-results-div">
+            <ul id="info-results">
+            </ul>
+        </div>
+    </div>
+
+    <div id="hero-matches-page">
+        <h2>Matches Search</h2>
+        <div id = "row">
+        <div id="Fields">
+            <label for="select-field">Field:</label>
+            <select id="select-field">
+                <option id="Gender" class="field">Gender</option>
+                <option id="Eye color" class="field">Eye color</option>
+                <option id="Race" class="field">Race</option>
+                <option id="Hair color" class="field">Hair color</option>
+                <option id="Height" class="field">Height</option>
+                <option id="Publisher" class="field">Publisher</option>
+                <option id="Skin color" class="field">Skin color</option>
+                <option id="Alignment" class="field">Alignment</option>
+                <option id="Weight" class="field">Weight</option>
+            </select>
+        </div>
+        <div id="PatternBtns">
+            <label for="select-pattern">Pattern:</label>
+            <select id="select-pattern">
+                <option id="Male" class="pattern">Male</option>
+                <option id="Female" class="Pattern">Female</option>
+                <option id="-" class="pattern">-</option>
+            </select>
+            <div id="hw-input">
+            </div>
+        </div>
+        <div id="numResults">
+            <label for="numMatches">Number of Matches:</label>
+            <input type="text" id="numMatches" placeholder="# of matches">
+        </div>
+        <button id="search-matches">Search</button><br>
+        </div>
+            <p id="match-message"></p>
+        <ul id="matches-results"></ul>
+    </div>
+    <div id= "manage-lists-page">
+        <h2>Add/View Lists</h2>
+        <span id="list-manage">
+            List name: <input type="text" id="listName">
+            Hero IDs: <input type="text" id="heroIds" placeholder="Ex. 12, 15, 16, 17">
+            <button id="create-list">Add List</button>
+            <button id="past-lists">View Saved Lists</button><br>
+        </span> 
+        <h2>Search/Delete Lists</h2>
+
+        <span id="list-manage">
+            List name: <input type="text" id="listName2">
+            <button id="search-list">Search List</button>
+            <button id="delete-list">Delete List</button>
+        </span>
+        <div id="Lists">
+            <br>
+            <p id="list-message"></p >
+            <h2 id="saved-lists-header"></h2>
+
+            <ul id="saved-lists"> 
+                <div id="List1">
+
+            </ul> 
+        </div>
+
+    </div>
+
+    <br>
+
+<script defer src="script.js"></script>
+</body>
+</html>
