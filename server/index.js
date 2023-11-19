@@ -282,24 +282,44 @@ router.get('/search/:field', (req,res) => {
 })
 
 
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
-    
+
     fs.readFile('server/superheroes/superhero_info.json', 'utf8', (err, data) => {
         if (err) {
             //console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
             hero_info = JSON.parse(data);
-        }
-    })
+            fs.readFile('server/superheroes/superhero_powers.json', 'utf8', (err, data) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send('Internal Server Error');
+                } else {
+                    hero_powers = JSON.parse(data);
+                    let newPowers = hero_powers.map(function(hero){
+                        for(const power in hero){
+                            if (power!== "hero_names" && hero[power]!=="True"){
+                                delete hero[power];
+                            }
+                        }
+                        return hero;
+                    })
 
-    fs.readFile('server/superheroes/superhero_powers.json', 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Internal Server Error');
-        } else {
-            hero_powers = JSON.parse(data);
+                    //combining powers and hero info
+                    for (hero of hero_info){
+                        let powers = newPowers.find((e)=>e.hero_names == hero.name)
+                        let curr_powers = []
+                        for (let power in powers){
+                            if(power !== "hero_names"){
+                                curr_powers.push(power);
+                            }
+                        }
+                        hero.powers = curr_powers;
+                    }
+                }
+            })
         }
     })
 }); 
