@@ -321,7 +321,7 @@ function getInfo(){
     fetch("/api/hero/").then(res => {res.json()
         .then(data => {
             const l = document.getElementById("searchResults");
-            data.forEach( element => {
+            data.forEach( element => { 
                 const item = document.createElement('li');
                 item.appendChild(document.createTextNode(`Name:${element.name} \n ${element.Publisher}`))
                 l.appendChild(item);

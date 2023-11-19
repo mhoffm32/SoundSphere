@@ -1,5 +1,5 @@
 import Header from './components/Header'
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import Login from './components/Login'
 import SignUp from './components/SignUp'
 import Info from './components/Info'
@@ -8,9 +8,21 @@ import './App.css';
 
 //Page header will change to login/logout and site info
 function App() {
-
+  
   const [state, setState] = useState("DEF");
   const [current_user, setUser] = useState("");
+  const [backendData, setBackendData] = useState([{}])
+  
+  useEffect(() => {
+    fetch("/api/hero/").then(
+      response => response.json()
+    ).then(
+      data => {
+        setBackendData(data)
+        console.log(data)
+      }
+    )
+  },[])
 
   const handleState = (choice) => {
     setState(choice)
@@ -36,7 +48,6 @@ function App() {
     if (found==1){
       console.log("")
     }else{
-
     }
   }
 
@@ -53,3 +64,37 @@ function App() {
 }
 
 export default App;
+/*
+
+
+import {useEffect,useState} from 'react'
+import React from 'react'
+
+
+function App() {
+
+  const [backendData, setBackendData] = useState([{}])
+
+  useEffect(() => {
+    fetch("/api/hero/").then(
+      response => response.json()
+    ).then(
+      data => {
+        setBackendData(data)
+        console.log(backendData)
+      }
+    )
+  },[])
+
+  return(
+    <div>
+      {(typeof backendData === "undefined") ? (
+      <p>Loading...</p> 
+      ) : (
+        backendData.map((hero, i) => (<p key={i}>{hero.name}</p>))
+        )}
+    </div>
+  )
+}
+
+export default App*/

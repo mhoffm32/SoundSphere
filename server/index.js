@@ -1,23 +1,52 @@
-const express = require('express')
+/*const express = require('express')
 const app = express();
-const port = 3000;
+const port = 5001;
 const fs = require('fs')
 const path = require('path');
 const router = express.Router()
 
 //to detect js and html in user input
 const xss = require("xss");
+*/
+
+const express = require('express')
+const app = express()
+const port = 5001
+const fs = require('fs')
+const path = require('path');
+const router = express.Router()
+const router2 = express.Router()
+
+const xss = require("xss");
+
+app.get('/api', (req,res) => {
+    res.json({"users":["user1","user2","user3"]})
+})
+
+
+//app.listen(port, ()=>{console.log(`Listening on port ${port}...`)})
+
 
 let hero_info;
 let hero_powers;
 
 //installing router at api/hero
 app.use('/', express.static('client'));
+
 app.use('/api/hero', router);
+app.use('/api/users',router2)
+
 app.use(express.json());
 router.use(express.json());
+router2.use(express.json())
+
 
 //to automatically log the client requests
+
+app.get('/api', (req,res)=>{
+    res.json({"users":["user1","user2","user3"]})
+})
+
 app.use((req,res,next) => {
     console.log(`${req.method} request for ${req.url}`)
     next();
@@ -33,11 +62,41 @@ router.get('/', (req, res) => {
     }
 });
 
+router2.post("/add-user", (req,res) => {
+
+    try {
+        // Getting existing data
+        const jsonData = fs.readFileSync("data/users.json", 'utf8');
+        const jsonArray = JSON.parse(jsonData);
+
+        console.log("length", jsonArray.length)
+
+        const newUser = req.body;
+
+        console.log(newUser)
+          
+        jsonArray.push(newUser);
+
+        const updatedUsers = JSON.stringify(jsonArray, null, 2);
+
+        fs.writeFileSync("data/users.json", updatedUsers);
+
+        console.log('Data appended to the JSON file.');
+
+        res.json({ message: 'Data appended successfully' });
+
+
+        } catch (error) {
+            console.error('Error appending data to the JSON file:', error);
+            res.status(500).json({ error: 'An error occurred while appending data to the file' });
+        }
+})
+
 
 router.post('/deleteList',(req,res) =>{
     try {
         // Getting existing data
-        const jsonData = fs.readFileSync("superhero_lists.json", 'utf8');
+        const jsonData = fs.readFileSync("data/superhero_lists.json", 'utf8');
         const jsonArray = JSON.parse(jsonData);
         let exists = false;
     
@@ -57,7 +116,7 @@ router.post('/deleteList',(req,res) =>{
 
             let newArray = jsonArray.filter((list) => list.name !== newData.name);
             const updatedData = JSON.stringify(newArray, null, 2);
-            fs.writeFileSync("superhero_lists.json", updatedData);
+            fs.writeFileSync("data/superhero_lists.json", updatedData);
             console.log('Data deleted from the JSON file.');
             res.json({ message: 'Data deleted successfully'});
         }
@@ -73,7 +132,7 @@ router.post('/deleteList',(req,res) =>{
 router.post('/newList', (req, res) => {
     try {
       // Getting existing data
-      const jsonData = fs.readFileSync("superhero_lists.json", 'utf8');
+      const jsonData = fs.readFileSync("data/superhero_lists.json", 'utf8');
       const jsonArray = JSON.parse(jsonData);
       let exists = false;
   
@@ -94,7 +153,7 @@ router.post('/newList', (req, res) => {
         jsonArray.push(newData);
 
         const updatedData = JSON.stringify(jsonArray, null, 2);
-        fs.writeFileSync("superhero_lists.json", updatedData);
+        fs.writeFileSync("data/superhero_lists.json", updatedData);
         console.log('Data appended to the JSON file.');
         res.json({ message: 'Data appended successfully' });
       }
@@ -118,7 +177,7 @@ router.get('/past_lists', (req, res) => {
     
     let hero_lists = []
 
-    fs.readFile('superhero_lists.json', 'utf8', (err, data) => {
+    fs.readFile('data/superhero_lists.json', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
@@ -284,15 +343,16 @@ router.get('/search/:field', (req,res) => {
 
 
 app.listen(port, () => {
+
     console.log(`Listening on port ${port}`);
 
-    fs.readFile('server/superheroes/superhero_info.json', 'utf8', (err, data) => {
+    fs.readFile('superheroes/superhero_info.json', 'utf8', (err, data) => {
         if (err) {
             //console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
             hero_info = JSON.parse(data);
-            fs.readFile('server/superheroes/superhero_powers.json', 'utf8', (err, data) => {
+            fs.readFile('superheroes/superhero_powers.json', 'utf8', (err, data) => {
                 if (err) {
                     console.error(err);
                     res.status(500).send('Internal Server Error');
@@ -323,3 +383,4 @@ app.listen(port, () => {
         }
     })
 }); 
+
