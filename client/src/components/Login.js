@@ -1,39 +1,64 @@
 import React from 'react';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import User from "../User.js"
 
-const Login = ({setUser, setState}) => {
+const Login = ({onLogin}) => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [localstate, setstate] = useState('login')
+    const [curr_user, setUser] = useState(new User(0,'','',''))
+
+    useEffect(() => {
+        
+        if(localstate){
+          onLogin({state: localstate, user: curr_user})
+        }
+
+      }, [localstate]);
+
 
     const handleLog = async () => {
         if (email && password) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            let cUser = await getUser(email)
-
-            let thisuser = new User(cUser.id,cUser.nName,cUser.email,cUser.password)
-            
-            if (thisuser.activated){
-                setUser(thisuser)
-                setState("loggedIn")
+            if(!emailRegex.test(email)){
+                alert("invalid email format")
             }else{
-                alert("User account deactivated")
+                let res = await getUser()
+                if (res == 404){
+                    alert("Invalid Credentials")
+                }else if(res == 500 || res == null){
+                    alert("An error occured. Please try again.")
+                }else {
+                    if(res.disabled){
+                        alert("Disabled Account. Please contact the site adminstarator for more details.");
+                    }else{
+                        setUser(new User(res.userID,res.nName,res.email,res.password))
+                        setstate("loggedin")
+                       
+                    }
+                }
             }
-
         } else {
-            alert('Please enter both username and password.');
+            alert('Please enter both a username and password.');
         }
     };
 
-    async function getUser(email) {
+    async function getUser() {
         try {
-              const response = await fetch(`/api/users/users_list/${email}`);
+              const response = await fetch(`/api/users/get_user/${email}/${password}`);
               const data = await response.json();
-              return data;
+              if(response.status == 200){
+                return data.user;
+              } else if (response.status == 404){
+                return 404;
+              }else{
+                return 500;
+              }
 
         } catch (error) {
-              console.error("Error:", error);
+              console.error("Error occured:", error);
               return null; // or handle the error in a way that makes sense for your application
         }
       }

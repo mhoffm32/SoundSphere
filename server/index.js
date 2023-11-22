@@ -62,8 +62,30 @@ router.get('/', (req, res) => {
 
 
 
-router2.get("/users_list", (req,res)=>{
+router2.get("/get_user/:email/:password", (req,res)=>{
+    const userEmail = sanitize(req.params.email.trim());
+    const userPass = sanitize(req.params.password.trim());
 
+    const sql = 'SELECT * FROM Users WHERE email = ? AND password = ?';
+    const values = [userEmail,userPass];
+
+    try {
+        connection.query(sql, values, (error, results) => {
+            if (error){
+                res.status(501).json({ error: 'An sql error occurred' });
+            }else{
+                if (results.length > 0){
+                    res.status(200).json({user: results[0]})
+                }else{
+                    res.status(404).json({message: "Invalid Credentials"})
+                }
+                //res.status(200).json({message: 'User added successfully',userID: results.insertId, status: 200})
+            }
+        })
+
+    } catch (error) {
+            res.status(500).json({ error: 'An server side error occurred ' });
+    }
 
 })
 
@@ -156,8 +178,6 @@ router.post('/newList', (req, res) => {
             res.status(500).json({ error: 'An error occurred while appending data to the file' });
         }
   });
-
-
 
 
 router.post('/newList', (req, res) => {

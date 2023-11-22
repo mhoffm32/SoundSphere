@@ -3,7 +3,6 @@ import {useState, useEffect} from 'react';
 import User from "../User.js"
 
 
-
 const SignUp = ({onSignup}) => {
 
     const [email, setEmail] = useState('');
@@ -16,17 +15,9 @@ const SignUp = ({onSignup}) => {
 
     useEffect(() => {
 
-      console.log("Localstate: ",localstate)
-      
       if(localstate){
-
-        console.log("currentID: " + userID)
-
         let current_user = new User(userID,nName,email,password)
-
         onSignup({state: localstate, user: current_user})
-      }else{
-
       }
 
     }, [userID]);
@@ -82,7 +73,7 @@ const SignUp = ({onSignup}) => {
     };
 
     return(
-        <div className='login'>
+        <div className='signup'>
             <span>
             Email: <input type="text" id="email" onChange={(e) => setEmail(e.target.value)}/><br/>
             Nickname: <input type="text" id="nName" onChange={(e) => setnName(e.target.value)}/><br/>
