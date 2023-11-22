@@ -1,10 +1,21 @@
 class User{
-    constructor(fName, lName, username, password) {
-        this.fName = fName;
-        this.lName = lName;
-        this.username = username;
+    constructor(id, nName,email, password) {
+        this.id = id;
+        this.nName = nName;
+        this.email = email;
         this.password = password;
+        this.disabled = 0;
     }
+
+    deactivate(){
+        this.disabled = 1;
+    }
+
+
+}
+
+class AdminUser extends User{
+
 }
 export default User;
 

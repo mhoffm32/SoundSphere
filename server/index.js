@@ -1,13 +1,3 @@
-/*const express = require('express')
-const app = express();
-const port = 5001;
-const fs = require('fs')
-const path = require('path');
-const router = express.Router()
-
-//to detect js and html in user input
-const xss = require("xss");
-*/
 
 const express = require('express')
 const app = express()
@@ -17,15 +7,25 @@ const path = require('path');
 const router = express.Router()
 const router2 = express.Router()
 
+
+//SQL configs
+const mysql = require('mysql');
+require('dotenv').config();
+
+const connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
+});
+
+connection.connect();
+
 const xss = require("xss");
 
 app.get('/api', (req,res) => {
     res.json({"users":["user1","user2","user3"]})
 })
-
-
-//app.listen(port, ()=>{console.log(`Listening on port ${port}...`)})
-
 
 let hero_info;
 let hero_powers;
@@ -42,7 +42,6 @@ router2.use(express.json())
 
 
 //to automatically log the client requests
-
 app.get('/api', (req,res)=>{
     res.json({"users":["user1","user2","user3"]})
 })
@@ -51,7 +50,6 @@ app.use((req,res,next) => {
     console.log(`${req.method} request for ${req.url}`)
     next();
 });
-
 
 //default sends all info data
 router.get('/', (req, res) => {
@@ -62,39 +60,45 @@ router.get('/', (req, res) => {
     }
 });
 
+
+
+router2.get("/users_list", (req,res)=>{
+
+
+})
+
+router2.post("/disable-user", (req,res) => {
+    const userID = req.body;
+
+})
+
+
 router2.post("/add-user", (req,res) => {
+    const newUser = req.body;
 
+    const sql = 'INSERT INTO Users(nName,email,password) VALUES (?,?,?)';
+    const values = [newUser.nName,newUser.email, newUser.password];
     try {
-        // Getting existing data
-        const jsonData = fs.readFileSync("data/users.json", 'utf8');
-        const jsonArray = JSON.parse(jsonData);
+        connection.query(sql, values, (error, results) => {
+            if (error){
+                if(error.errno === 1062){
+                    res.status(409).json({ error: 'User already exists' });
+                }
+            }else{
+                res.status(200).json({message: 'User addedd successfully',userID: results.insertId, status: 200})
+            }
+        })
 
-        console.log("length", jsonArray.length)
-
-        const newUser = req.body;
-
-        console.log(newUser)
-          
-        jsonArray.push(newUser);
-
-        const updatedUsers = JSON.stringify(jsonArray, null, 2);
-
-        fs.writeFileSync("data/users.json", updatedUsers);
-
-        console.log('Data appended to the JSON file.');
-
-        res.json({ message: 'Data appended successfully' });
-
-
-        } catch (error) {
-            console.error('Error appending data to the JSON file:', error);
+    } catch (error) {
             res.status(500).json({ error: 'An error occurred while appending data to the file' });
         }
 })
 
 
-router.post('/deleteList',(req,res) =>{
+router.post('/deleteList',(req,res) => {
+
     try {
+
         // Getting existing data
         const jsonData = fs.readFileSync("data/superhero_lists.json", 'utf8');
         const jsonArray = JSON.parse(jsonData);
@@ -127,6 +131,33 @@ router.post('/deleteList',(req,res) =>{
 })
 
 
+router.post('/newList', (req, res) => {
+    const newList = req.body;
+
+    let heroIDs = JSON.stringify(newList.heroIDs)
+
+    const sql = 'INSERT INTO Hero_Lists(UserID, ListName, HeroIDs) VALUES (?,?,?)';
+    
+    const values = [newList.userID, newList.listName, heroIDs];
+
+    try {
+        
+        connection.query(sql, values, (error, results) => {
+            if (error){
+                if(error.errno === 1062){
+                    res.status(409).json({ error: 'List named ' + newList.listName + " already exists."});
+                }
+            }else{
+                res.status(200).json({message: 'List Added successfully', status: 200})
+            }
+        })
+
+    } catch (error) {
+            res.status(500).json({ error: 'An error occurred while appending data to the file' });
+        }
+  });
+
+
 
 
 router.post('/newList', (req, res) => {
@@ -149,9 +180,8 @@ router.post('/newList', (req, res) => {
       if (exists) {
         res.status(409).json({ error: 'List name already exists' });
       } else {
-        
+    
         jsonArray.push(newData);
-
         const updatedData = JSON.stringify(jsonArray, null, 2);
         fs.writeFileSync("data/superhero_lists.json", updatedData);
         console.log('Data appended to the JSON file.');
@@ -171,6 +201,26 @@ function sanitize(input) {
     const sanitizedInput = xss(input);
     return sanitizedInput;
 }
+
+router2.get("/users_list", (req,res)=>{
+
+    let users_lists = []
+
+    fs.readFile("data/users.json", 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+        } else {
+            let users = JSON.parse(data);
+            for (let user of users){
+                users_lists.push(user)
+            }
+            res.json(users_lists); 
+        }
+    })
+
+})
+
 
 
 router.get('/past_lists', (req, res) => {
@@ -339,7 +389,6 @@ router.get('/search/:field', (req,res) => {
         res.status(500).send('JSON data is not available');
     }
 })
-
 
 
 app.listen(port, () => {

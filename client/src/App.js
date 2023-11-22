@@ -3,6 +3,7 @@ import {useState, useEffect} from 'react'
 import Login from './components/Login'
 import SignUp from './components/SignUp'
 import Info from './components/Info'
+import Home from './components/Home'
 import User from './User'
 import './App.css';
 
@@ -10,45 +11,34 @@ import './App.css';
 function App() {
   
   const [state, setState] = useState("DEF");
-  const [current_user, setUser] = useState("");
-  const [backendData, setBackendData] = useState([{}])
-  
-  useEffect(() => {
-    fetch("/api/hero/").then(
-      response => response.json()
-    ).then(
-      data => {
-        setBackendData(data)
-        console.log(data)
-      }
-    )
-  },[])
+  const [current_user, setCurrentUser] = useState(null);
+  //const [current_user, setUser] = useState("")
 
-  const handleState = (choice) => {
-    setState(choice)
+  const handleState = (state1) => {
+    setState(state1)
   }
 
   const handleUser = (user) => {
-    setUser(user)
+    setCurrentUser(user);
   }
 
   function onLoginClick(){
     setState("login");
-    console.log("called on loginclick");
   }
 
   function onInfoClick(){
     setState("info");
-    console.log("called on infologinclick");
   }
 
-  const handleSignup = (details) => {
-    console.log(details)
-    let found = 0;
-    if (found==1){
-      console.log("")
-    }else{
-    }
+  const handleSignup = (res) => {
+    setState(res.state);
+    setCurrentUser(res.user);
+    console.log("state: " + res.state)
+    console.log("user: ", current_user)
+  }
+
+  if(state == "loggedin"){
+    console.log("user loggedin: " + current_user)
   }
 
   return (
@@ -58,7 +48,7 @@ function App() {
       {state == "info" ? <Info choice ={handleState}/> : <></>}
       {state == "login" ? <Login setUser={handleUser} setState={handleState} />: <></>}
       {state == "signup" ? <SignUp onSignup={handleSignup}/>: <></>}
-      {state == "loggedIn" ? <Info choice ={handleState}/> : <></>}
+      {state == "loggedin" ? <Home user = {current_user}/> : <></>}
     </div>
   )
 }

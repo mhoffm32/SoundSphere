@@ -5,19 +5,8 @@ const Info = ({choice}) => {
 
     const [backendData, setBackendData] = useState([{}])
 
-    useEffect(() => {
-        fetch("/api/hero/past_lists").then(
-          response => response.json()
-        ).then(
-          data => {
-            setBackendData(data)
-            console.log(data)
-          }
-        )
-      },[])
 
     return (
-    
         <div className='info'>
         {(typeof backendData === "undefined") ? (
         <p>Loading...</p> 
