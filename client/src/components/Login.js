@@ -10,11 +10,9 @@ const Login = ({onLogin}) => {
     const [curr_user, setUser] = useState(new User(0,'','',''))
 
     useEffect(() => {
-        
         if(localstate){
           onLogin({state: localstate, user: curr_user})
         }
-
       }, [localstate]);
 
 
@@ -34,7 +32,9 @@ const Login = ({onLogin}) => {
                     if(res.disabled){
                         alert("Disabled Account. Please contact the site adminstarator for more details.");
                     }else{
-                        setUser(new User(res.userID,res.nName,res.email,res.password))
+                        let u = new User(res.userID,res.nName,res.email,res.password)
+                        u.admin = res.admin;
+                        setUser(u)
                         setstate("loggedin")
                        
                     }

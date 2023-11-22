@@ -1,6 +1,12 @@
 import React from 'react';
 import {useState,useEffect} from 'react';
 
+/*
+ADMIN FEATURES 
+- 
+
+*/
+
 const AdminHome = (props) => {
     
   const { user } = props;

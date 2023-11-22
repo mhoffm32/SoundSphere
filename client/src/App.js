@@ -54,6 +54,7 @@ function App() {
     <div>
       {state != "login" ? <button onClick={onLoginClick}> {loginText} </button> : <></>}
       {state !== "info" && state !== "loggedin"  ? <button onClick={returnPage}> Return </button> : <></>}
+      
       {state == "info" ? <Info choice ={handleState}/> : <></>}
       {state == "login" ? <Login onLogin={handleLogin} />: <></>}
       {state == "signup" ? <SignUp onSignup={handleLogin}/>: <></>}
