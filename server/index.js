@@ -12,9 +12,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 app.use(bodyParser.json());
 
-const users = [];
-
-
+let unverifiedUsers = [];
 
 //SQL configs
 const mysql = require('mysql');
@@ -69,51 +67,79 @@ router.get('/', (req, res) => {
 });
 
 
-app.post('/create-account', (req, res) => {
-    const { email, name, password } = req.body;
 
-    // Generate a unique verification token (mocked using user information)
-    const verificationToken = crypto.createHash('sha256').update(email + name + password).digest('hex');
+app.get('/verify-email/:token', (req, res) => {
+    
+    let token = decodeURIComponent(req.params.token);
+    token = token.split("/")
+    token = token[token.length-1]
 
-    // Store user information in memory
-    users.push({ email, name, password, verificationToken, verified: false });
+    // Find the user with the matching verification token
 
-    // Display the verification link to the user (mocked email)
-    const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}`;
+    const cuser = unverifiedUsers.find(u => u.token === token);
 
-    res.json({ message: `Account created. Verification link: ${verificationLink}` });
+    if (cuser) {
+        // Mark the user as verified (update your database accordingly)
+        res.status(200).json({ message: `Your verification code is ${cuser.code}` });
+    } else {
+        res.status(404).json({ message: `Invalid verification link: ${token}`});
+    }
+
 });
 
 
-app.get('/verify-email/:token', (req, res) => {
-    const token = req.params.token;
 
-    // Find the user with the matching verification token
-    const user = users.find(u => u.verificationToken === token);
+app.get(`/verify-email/:token/:code`, (req,res)=>{
+    let token = decodeURIComponent(req.params.token);
+    token = token.split("/")
+    token = token[token.length-1]
+    let code = Number(req.params.code)
 
-    if (user) {
-        // Mark the user as verified (update your database accordingly)
-        user.verified = true;
-        res.json({ message: 'Email verified successfully' });
+    const userToVerify = unverifiedUsers.find(u => (u.token === token) && (u.code === code));
+
+    if (userToVerify) {
+        
+        //removing from the temp array
+        unverifiedUsers = unverifiedUsers.filter(u => userToVerify.user.email !== u.user.email);
+
+        const sql = 'INSERT INTO Users(nName,email,password) VALUES (?,?,?)';
+        const values = [userToVerify.user.nName, userToVerify.user.email, userToVerify.user.password];
+
+        try {
+            connection.query(sql, values, (error, results) => {
+                if (error){
+                    res.status(409).json({error: error.message});
+                }else{
+                    res.status(200).json({message: 'User Verified successfully', userID: results.insertId, status: 200})
+                }
+            })
+
+        } catch (error) {
+                res.status(500).json({ error: 'An error occurred while appending data to the file' });
+            }
+
+
     } else {
-        res.status(404).json({ message: 'Invalid verification token' });
+        res.status(404).json({ message: `Invalid verification token: ${token}, Code: ${code}` , users: users });
     }
 
 
-});
+})
 
 
 
 router2.post("/add-user", (req,res) => {
-
 
     const newUser = req.body;
 
     // Generate a unique verification token (mocked using user information)
     const verificationToken = crypto.createHash('sha256').update(newUser.email + newUser.nName + newUser.password).digest('hex');
 
+    const randomCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
+
     // Store user information in memory
-    users.push({ user: newUser , token: verificationToken, verified: false });
+
+    unverifiedUsers.push({ user: newUser , token: verificationToken, verified: false, code: randomCode});
 
     // Display the verification link to the user (mocked email)
     const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}`;
@@ -129,10 +155,10 @@ router2.post("/add-user", (req,res) => {
                     res.status(500).json({ error: error.message });
                 }
             }else{
-                if(results.length > 0){
+                if(results.length){
                     res.status(409).json({error: "user already exists"})
                 }else{
-                    res.status(200).json({ message: `Account created. Verification link: ${verificationLink}` });
+                    res.status(200).json({ message: `Account created.`, link: verificationLink, status: 200});
                 }   
             }
         })
@@ -140,7 +166,6 @@ router2.post("/add-user", (req,res) => {
     } catch (error) {
             res.status(500).json({ error: 'An error occurred while appending data to the file' });
         }
-
 })
 
 
@@ -193,7 +218,6 @@ router2.get("/users_list", (req,res) => {
             res.status(500).json({ error: 'An server side error occurred ' });
     }
 })
-
 
 
 
