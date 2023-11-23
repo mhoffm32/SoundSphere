@@ -61,6 +61,30 @@ router.get('/', (req, res) => {
 });
 
 
+router2.get("/users_list", (req,res) => {
+
+    const sql = 'SELECT * FROM Users';
+
+    try {
+        connection.query(sql, (error, results) => {
+            
+            if (error) {
+                res.status(501).json({ error: 'An SQL error occurred' });
+            } else {
+                if (results.length > 0) {
+                    res.status(200).json({ users: results });
+                } else {
+                    res.status(404).json({ message: 'No users found' });
+                }
+            }
+        })
+
+    } catch (error) {
+            res.status(500).json({ error: 'An server side error occurred ' });
+    }
+})
+
+
 
 router2.get("/get_user/:email/:password", (req,res)=>{
     const userEmail = sanitize(req.params.email.trim());
@@ -86,13 +110,61 @@ router2.get("/get_user/:email/:password", (req,res)=>{
     } catch (error) {
             res.status(500).json({ error: 'An server side error occurred ' });
     }
+})
+
+
+router2.get("/disable-user/:id/:status", (req,res) => {
+    
+    let disabled = sanitize(req.params.status.trim())
+    let userid = sanitize(req.params.id.trim())
+
+    const sql = 'UPDATE Users SET disabled = ? WHERE id = ?';
+    const values = [disabled,userid];
+    
+    try {
+        connection.query(sql, values, (error, results) => {
+            if (error){
+                res.status(501).json({ error: 'An sql error occurred' });
+
+            }else{
+                if (results.length > 0){
+                    res.status(200).json({results: results})
+                }else{
+                    res.status(404).json({message: "Unable to update"})
+                }
+            }
+        })
+
+    } catch (error) {
+            res.status(500).json({ error: 'An server side error occurred ' });
+    }
+})
+
+
+router2.get("/admin-user/:id/:status", (req,res) => {
+
+    let userid = sanitize(req.params.id.trim());
+    let admin = sanitize(req.params.status.trim());
+
+    const sql = 'UPDATE Users SET admin = ? WHERE userID = ?';
+    const values = [admin, userid];
+
+    connection.query(sql, values, (error, results) => {
+        if (error) {
+            console.error('SQL error:', error.message);
+            res.status(500).json({ error: 'A server-side error occurred' });
+        } else {
+            if (results.affectedRows > 0) {
+                res.status(200).json({ message: "Update successful" });
+            } else {
+                res.status(404).json({ message: "No user found for the provided ID" });
+            }
+        }
+    });
 
 })
 
-router2.post("/disable-user", (req,res) => {
-    const userID = req.body;
 
-})
 
 
 router2.post("/add-user", (req,res) => {
@@ -151,6 +223,7 @@ router.post('/deleteList',(req,res) => {
         res.status(500).json({ error: 'An error occurred while appending data to the file' });
       }
 })
+
 
 
 router.post('/newList', (req, res) => {
@@ -221,25 +294,6 @@ function sanitize(input) {
     const sanitizedInput = xss(input);
     return sanitizedInput;
 }
-
-router2.get("/users_list", (req,res)=>{
-
-    let users_lists = []
-
-    fs.readFile("data/users.json", 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Internal Server Error');
-        } else {
-            let users = JSON.parse(data);
-            for (let user of users){
-                users_lists.push(user)
-            }
-            res.json(users_lists); 
-        }
-    })
-
-})
 
 
 

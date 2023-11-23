@@ -36,7 +36,6 @@ const Login = ({onLogin}) => {
                         u.admin = res.admin;
                         setUser(u)
                         setstate("loggedin")
-                       
                     }
                 }
             }
