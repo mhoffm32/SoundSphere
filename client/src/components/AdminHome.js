@@ -52,6 +52,8 @@ const AdminHome = (props) => {
             if (!response.ok) {
                 console.error(`Request failed with status ${response.status}: ${response.statusText}`);
             } else {
+                console.log("Admin status changed")
+                getUsers()
             }
         } catch (error) {
             console.error('Error:', error.message);
@@ -59,9 +61,20 @@ const AdminHome = (props) => {
 
     }
 
-    const accountStatus = async (id) => {
-        let userID = id;
-        console.log(userID)
+    const accountStatus = async (id,status) => {
+
+        try {
+            const response = await fetch(`/api/users/disable-user/${id}/${Number(!status)}`);
+
+            if (!response.ok) {
+                console.error(`Request failed with status ${response.status}: ${response.statusText}`);
+            } else {
+                console.log("Account Status changed")
+                getUsers()
+            }
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
 
     }
 

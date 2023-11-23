@@ -2,10 +2,18 @@
 const express = require('express')
 const app = express()
 const port = 5001
+const host = 'localhost'
 const fs = require('fs')
 const path = require('path');
 const router = express.Router()
 const router2 = express.Router()
+
+const bodyParser = require('body-parser');
+const crypto = require('crypto');
+app.use(bodyParser.json());
+
+const users = [];
+
 
 
 //SQL configs
@@ -61,13 +69,115 @@ router.get('/', (req, res) => {
 });
 
 
+app.post('/create-account', (req, res) => {
+    const { email, name, password } = req.body;
+
+    // Generate a unique verification token (mocked using user information)
+    const verificationToken = crypto.createHash('sha256').update(email + name + password).digest('hex');
+
+    // Store user information in memory
+    users.push({ email, name, password, verificationToken, verified: false });
+
+    // Display the verification link to the user (mocked email)
+    const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}`;
+
+    res.json({ message: `Account created. Verification link: ${verificationLink}` });
+});
+
+
+app.get('/verify-email/:token', (req, res) => {
+    const token = req.params.token;
+
+    // Find the user with the matching verification token
+    const user = users.find(u => u.verificationToken === token);
+
+    if (user) {
+        // Mark the user as verified (update your database accordingly)
+        user.verified = true;
+        res.json({ message: 'Email verified successfully' });
+    } else {
+        res.status(404).json({ message: 'Invalid verification token' });
+    }
+
+
+});
+
+
+
+router2.post("/add-user", (req,res) => {
+
+
+    const newUser = req.body;
+
+    // Generate a unique verification token (mocked using user information)
+    const verificationToken = crypto.createHash('sha256').update(newUser.email + newUser.nName + newUser.password).digest('hex');
+
+    // Store user information in memory
+    users.push({ user: newUser , token: verificationToken, verified: false });
+
+    // Display the verification link to the user (mocked email)
+    const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}`;
+
+    //checking if user exists already
+    const sql = 'SELECT * FROM Users WHERE email = ?';
+    const values = [newUser.email];
+
+    try {
+        connection.query(sql, values, (error, results) => {
+            if (error){
+                if(error.errno === 1062){
+                    res.status(500).json({ error: error.message });
+                }
+            }else{
+                if(results.length > 0){
+                    res.status(409).json({error: "user already exists"})
+                }else{
+                    res.status(200).json({ message: `Account created. Verification link: ${verificationLink}` });
+                }   
+            }
+        })
+
+    } catch (error) {
+            res.status(500).json({ error: 'An error occurred while appending data to the file' });
+        }
+
+})
+
+
+
+/*
+router2.post("/add-user", (req,res) => {
+   
+    const newUser = req.body;
+    const sql = 'INSERT INTO Users(nName,email,password) VALUES (?,?,?)';
+    const values = [newUser.nName,newUser.email, newUser.password];
+    
+
+    try {
+        connection.query(sql, values, (error, results) => {
+            if (error){
+                if(error.errno === 1062){
+                    res.status(409).json({ error: 'User already exists' });
+                }
+            }else{
+                res.status(200).json({message: 'User addedd successfully',userID: results.insertId, status: 200})
+            }
+        })
+
+    } catch (error) {
+            res.status(500).json({ error: 'An error occurred while appending data to the file' });
+        }
+})*/
+
+
+
+
 router2.get("/users_list", (req,res) => {
 
     const sql = 'SELECT * FROM Users';
 
     try {
         connection.query(sql, (error, results) => {
-            
             if (error) {
                 res.status(501).json({ error: 'An SQL error occurred' });
             } else {
@@ -83,6 +193,7 @@ router2.get("/users_list", (req,res) => {
             res.status(500).json({ error: 'An server side error occurred ' });
     }
 })
+
 
 
 
@@ -118,16 +229,15 @@ router2.get("/disable-user/:id/:status", (req,res) => {
     let disabled = sanitize(req.params.status.trim())
     let userid = sanitize(req.params.id.trim())
 
-    const sql = 'UPDATE Users SET disabled = ? WHERE id = ?';
+    const sql = 'UPDATE Users SET disabled = ? WHERE userID = ?';
     const values = [disabled,userid];
     
     try {
         connection.query(sql, values, (error, results) => {
             if (error){
                 res.status(501).json({ error: 'An sql error occurred' });
-
             }else{
-                if (results.length > 0){
+                if (results.affectedRows > 0){
                     res.status(200).json({results: results})
                 }else{
                     res.status(404).json({message: "Unable to update"})
@@ -162,30 +272,6 @@ router2.get("/admin-user/:id/:status", (req,res) => {
         }
     });
 
-})
-
-
-
-
-router2.post("/add-user", (req,res) => {
-    const newUser = req.body;
-
-    const sql = 'INSERT INTO Users(nName,email,password) VALUES (?,?,?)';
-    const values = [newUser.nName,newUser.email, newUser.password];
-    try {
-        connection.query(sql, values, (error, results) => {
-            if (error){
-                if(error.errno === 1062){
-                    res.status(409).json({ error: 'User already exists' });
-                }
-            }else{
-                res.status(200).json({message: 'User addedd successfully',userID: results.insertId, status: 200})
-            }
-        })
-
-    } catch (error) {
-            res.status(500).json({ error: 'An error occurred while appending data to the file' });
-        }
 })
 
 
