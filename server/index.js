@@ -7,6 +7,7 @@ const fs = require('fs')
 const path = require('path');
 const router = express.Router()
 const router2 = express.Router()
+const router3 = express.Router()
 
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
@@ -42,10 +43,12 @@ app.use('/', express.static('client'));
 
 app.use('/api/hero', router);
 app.use('/api/users',router2)
+app.use('/api/lists',router3)
 
 app.use(express.json());
 router.use(express.json());
 router2.use(express.json())
+router3.use(express.json())
 
 
 //to automatically log the client requests
@@ -53,10 +56,50 @@ app.get('/api', (req,res)=>{
     res.json({"users":["user1","user2","user3"]})
 })
 
-app.use((req,res,next) => {
+app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`)
     next();
 });
+
+
+
+router3.get('/unauth-public-lists',(req, res) => {
+    const sql = 'SELECT * FROM Hero_Lists';
+    let lists = []
+
+    try {
+        connection.query(sql, (error, results) => {
+            if (error) {
+                res.status(501).json({ error: 'An SQL error occurred' });
+            } else {
+                for (let list of results){
+                    let heroes_info = [];
+                    let ids = JSON.parse(list.HeroIDs)
+                    let comment_arr = JSON.parse(list.Comments)
+                    let listName = results.UserID
+                    
+                    for(let curr_id of ids){
+                        curr_id = Number(curr_id)
+                        let hero_obj = hero_info.find((e) => e.id === curr_id);
+                        heroes_info.push(hero_obj)
+                    }
+                    lists.push({comments: comment_arr, heroes: heroes_info, ListName: list.ListName, creator: list.Nickname, lastEdit: list.LastEdit, rating: list.Rating})
+                }
+
+                lists.sort((a, b) => b.lastEdit.getTime() - a.lastEdit.getTime());
+                res.status(200).json(lists);
+            }
+        })
+
+    } catch (error) {
+            res.status(500).json({ error: 'An server side error occurred ' });
+    }
+
+})
+
+
+
+
 
 //default sends all info data
 router.get('/', (req, res) => {
@@ -66,7 +109,6 @@ router.get('/', (req, res) => {
         res.status(500).send('JSON data for info is not available');
     }
 });
-
 
 
 app.get('/verify-email/:token', (req, res) => {
@@ -305,13 +347,13 @@ router.post('/deleteList',(req,res) => {
         console.error('Error appending data to the JSON file:', error);
         res.status(500).json({ error: 'An error occurred while appending data to the file' });
       }
-})
+});
 
 
 
 router.post('/newList', (req, res) => {
     const newList = req.body;
-
+    
     let heroIDs = JSON.stringify(newList.heroIDs)
 
     const sql = 'INSERT INTO Hero_Lists(UserID, ListName, HeroIDs) VALUES (?,?,?)';

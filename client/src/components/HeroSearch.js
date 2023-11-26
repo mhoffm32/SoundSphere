@@ -8,7 +8,6 @@ const HeroSearch = ({choice}) => {
     const [hero_powers, setHPowers] = useState([])
     const [publishers, setpublishers] = useState([])
     const [searchResults, setResults] = useState([])
-
     const [selectedRace, setSRace] = useState('none')
     const [selectedPower, setSPower] = useState('none')
     const [selectedPub, setSPub] = useState('none')
