@@ -1,13 +1,14 @@
 import React from 'react';
 import {useState,useEffect} from 'react';
+import HeroSearch from './HeroSearch';
+import PublicLists from "./PublicLists"
 
 const UnauthHome = ({choice}) => {
+    const [localstate, setstate] = useState('home')
     return (
-        <div className='info'>
-        <br/>
-            <p>Hero listing etc cmwkcmwekcmwe</p>
-            <p>Heroes ...</p>
-            <p>LALLAA ...</p>
+        {state === "home" }
+        <div className='unauth-home'>
+            
         </div>
     )
 }

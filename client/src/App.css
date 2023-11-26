@@ -2,6 +2,10 @@ ul {
     list-style-type: none;
     padding: 0;
 }
+
+h1{
+    text-align: center;
+}
   
 li {
     margin-bottom: 20px; /* Add margin between each list item */
@@ -12,7 +16,7 @@ li {
 }
   
 button {
-    padding: 8px 16px;
+    padding: 4px 8px;
     cursor: pointer;
   }
   

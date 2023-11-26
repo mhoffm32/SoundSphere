@@ -54,7 +54,6 @@ function App() {
     <div>
       {state != "login" ? <button onClick={onLoginClick}> {loginText} </button> : <></>}
       {state !== "info" && state !== "loggedin"  ? <button onClick={returnPage}> Return </button> : <></>}
-      
       {state == "info" ? <Info choice ={handleState}/> : <></>}
       {state == "login" ? <Login onLogin={handleLogin} />: <></>}
       {state == "signup" ? <SignUp onSignup={handleLogin}/>: <></>}
@@ -66,37 +65,3 @@ function App() {
 }
 
 export default App;
-/*
-
-
-import {useEffect,useState} from 'react'
-import React from 'react'
-
-
-function App() {
-
-  const [backendData, setBackendData] = useState([{}])
-
-  useEffect(() => {
-    fetch("/api/hero/").then(
-      response => response.json()
-    ).then(
-      data => {
-        setBackendData(data)
-        console.log(backendData)
-      }
-    )
-  },[])
-
-  return(
-    <div>
-      {(typeof backendData === "undefined") ? (
-      <p>Loading...</p> 
-      ) : (
-        backendData.map((hero, i) => (<p key={i}>{hero.name}</p>))
-        )}
-    </div>
-  )
-}
-
-export default App*/

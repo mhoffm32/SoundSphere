@@ -1,4 +1,4 @@
-
+const natural = require('natural');
 const express = require('express')
 const app = express()
 const port = 5001
@@ -35,6 +35,7 @@ app.get('/api', (req,res) => {
 
 let hero_info;
 let hero_powers;
+let power_list;
 
 //installing router at api/hero
 app.use('/', express.static('client'));
@@ -75,7 +76,6 @@ app.get('/verify-email/:token', (req, res) => {
     token = token[token.length-1]
 
     // Find the user with the matching verification token
-
     const cuser = unverifiedUsers.find(u => u.token === token);
 
     if (cuser) {
@@ -127,7 +127,6 @@ app.get(`/verify-email/:token/:code`, (req,res)=>{
 })
 
 
-
 router2.post("/add-user", (req,res) => {
 
     const newUser = req.body;
@@ -167,32 +166,6 @@ router2.post("/add-user", (req,res) => {
             res.status(500).json({ error: 'An error occurred while appending data to the file' });
         }
 })
-
-
-
-/*
-router2.post("/add-user", (req,res) => {
-   
-    const newUser = req.body;
-    const sql = 'INSERT INTO Users(nName,email,password) VALUES (?,?,?)';
-    const values = [newUser.nName,newUser.email, newUser.password];
-    
-
-    try {
-        connection.query(sql, values, (error, results) => {
-            if (error){
-                if(error.errno === 1062){
-                    res.status(409).json({ error: 'User already exists' });
-                }
-            }else{
-                res.status(200).json({message: 'User addedd successfully',userID: results.insertId, status: 200})
-            }
-        })
-
-    } catch (error) {
-            res.status(500).json({ error: 'An error occurred while appending data to the file' });
-        }
-})*/
 
 
 
@@ -417,7 +390,7 @@ router.get('/past_lists', (req, res) => {
             res.status(500).send('Internal Server Error');
         } else {
             let lists = JSON.parse(data);
-            for (list of lists){
+            for (let list of lists){
                 hero_lists.push(list)
             }
             res.json(hero_lists); 
@@ -425,11 +398,71 @@ router.get('/past_lists', (req, res) => {
     })
 });
 
+
+const areStringsSimilar = (str1, str2) => {
+    const similarity = natural.JaroWinklerDistance(str1.toLowerCase(), str2.toLowerCase());
+    const threshold = 0.9;
+    return similarity > threshold;
+};
+
+router.get(`/search/:hero_name/:hero_race/:hero_power/:hero_publisher`, (req,res) => {
+    let name = decodeURIComponent(sanitize(req.params.hero_name))
+    let race = decodeURIComponent(sanitize(req.params.hero_race))
+    let power = decodeURIComponent(sanitize(req.params.hero_power))
+    let publisher = decodeURIComponent(sanitize(req.params.hero_publisher))
+
+    const filter = {name: name, Race: race, powers: power, Publisher: publisher}
+
+    const filteredHeroes = hero_info.filter(hero => {
+        // Check each condition
+        return Object.entries(filter).every(([key, value]) => {
+          if (value === "none") {
+            return true;
+          }
+          if(key === "powers"){
+            return hero[key].includes(value);
+          }else{
+            if(areStringsSimilar(hero[key],value)){
+                return true;
+            }else{
+                return hero[key].toLowerCase().startsWith(value.toLowerCase());
+            }
+          }
+        });
+    });
+
+    res.json(filteredHeroes); 
+
+})
+
+
+
 router.get('/powers', (req,res) => {
-    if (hero_powers) {
-        res.json(hero_powers); 
+
+    if (power_list) {
+
+        let powers = []
+        for(prop in power_list){
+            if(prop !== "hero_names"){
+                powers.push(prop)
+            }
+        }
+        //let powerList = Array.from(new Set(hero_powers.map(hero => hero["Race"] )));
+        res.json(Array.from(new Set(powers))); 
     } else {
         res.status(500).send('JSON data for powers is not available');
+    }
+});
+
+
+
+router.get('/races', (req,res) => {
+    Array.from(new Set(hero_info.map(hero => hero["Publisher"] )));
+    if (hero_info) {
+        let raceList = Array.from(new Set(hero_info.map(hero => hero["Race"] )));
+        res.json(raceList)
+    } else {
+        res.status(500).send('JSON data for races is not available');
     }
 });
 
@@ -591,6 +624,9 @@ app.listen(port, () => {
                     res.status(500).send('Internal Server Error');
                 } else {
                     hero_powers = JSON.parse(data);
+                    power_list = JSON.parse(data);
+                    power_list = power_list[0]
+
                     let newPowers = hero_powers.map(function(hero){
                         for(const power in hero){
                             if (power!== "hero_names" && hero[power]!=="True"){

@@ -45,7 +45,7 @@ const AdminHome = (props) => {
     }
 
     const adminStatus = async (id,status) => {
-    
+        
         try {
             const response = await fetch(`/api/users/admin-user/${id}/${Number(!status)}`);
     
@@ -99,10 +99,8 @@ const AdminHome = (props) => {
                     (<button value = {user.userID} id="green" onClick={(e) => adminStatus(e.target.value,0)}> Grant Admin privilige</button>)}
                     {user.disabled ? (<button value={user.userID} id="green" onClick={(e) => accountStatus(e.target.value,1)}>Enable Account</button> ): 
                     (<button value = {user.userID} id="red" onClick={(e) => accountStatus(e.target.value,0)}>Disable Account</button>)}
-                    
                     </div>
                     </li>
-
                     ))}
                 </ul>
             )}
