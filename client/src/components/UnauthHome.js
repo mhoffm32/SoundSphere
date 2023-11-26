@@ -3,12 +3,15 @@ import {useState,useEffect} from 'react';
 import HeroSearch from './HeroSearch';
 import PublicLists from "./PublicLists"
 
-const UnauthHome = ({choice}) => {
+const UnauthHome = () => {
     const [localstate, setstate] = useState('home')
+    
     return (
-        {state === "home" }
-        <div className='unauth-home'>
-            
+        <div className='unauth-home'> 
+        <button id="options" value="hero-search" onClick={(e) => setstate(e.target.value)}>Search Heroes</button>
+        <button id="options" value="public-lists" onClick={(e) => setstate(e.target.value)}>View Public Lists</button>
+        {localstate == "hero-search" ? <HeroSearch/> : <></>}
+        {localstate == "public-lists" ? <PublicLists/> : <></>}
         </div>
     )
 }

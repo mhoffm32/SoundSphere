@@ -21,10 +21,8 @@ const HeroSearch = ({choice}) => {
 
     const toggleExpansion = (index) => {
       if (expandedResults.includes(index)) {
-        // If result is expanded, collapse it
         setExpandedResults(expandedResults.filter((expandedIndex) => expandedIndex !== index));
       } else {
-        // If result is collapsed, expand it
         setExpandedResults([...expandedResults, index]);
       }
     };

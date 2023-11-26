@@ -12,7 +12,8 @@ const Info = ({choice}) => {
                 display for other super hero fans or can be made private for your own personal viewing. Login below or signup for free today! </p>
             <button value = "signup" onClick = {(e) => choice(e.target.value)}> Sign Up</button>
             <button value = "login" onClick = {(e) => choice(e.target.value)}>Log In</button>
-            <UnauthHome></UnauthHome>
+            <br/><br/>
+            <UnauthHome/>
         </div>
     )
 }
