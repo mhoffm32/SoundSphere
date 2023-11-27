@@ -53,7 +53,16 @@ function App() {
   return (
     <div>
       {state != "login" ? (
-        <button onClick={onLoginClick}> {loginText} </button>
+        <div>
+          <button onClick={onLoginClick}>{loginText}</button>
+          {current_user !== null && current_user.id !== 0 ? (
+            <>
+              Current User: {current_user.nName} User ID: {current_user.id}{" "}
+            </>
+          ) : (
+            <></>
+          )}
+        </div>
       ) : (
         <></>
       )}

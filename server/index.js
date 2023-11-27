@@ -60,6 +60,56 @@ app.use((req, res, next) => {
   next();
 });
 
+router3.post("/add-review", (req, res) => {
+  const newReview = req.body;
+  const sql =
+    "SELECT Ratings From Hero_Lists WHERE UserID = ? AND listName = ?";
+  const values = [newReview.listID, newReview.listName];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        res.status(501).json({ error: "An SQL error occurred" });
+      } else {
+        let ratings = JSON.parse(results[0].Ratings);
+        let comment = newReview.comment;
+
+        if (comment.trim() === "") {
+          comment = "n/a";
+        }
+
+        ratings.push({
+          user: newReview.user,
+          rating: newReview.rating,
+          comment: comment,
+        });
+
+        const sql2 =
+          "Update Hero_Lists SET Ratings = ? WHERE UserID = ? AND listName = ?";
+        const values2 = [
+          JSON.stringify(ratings),
+          newReview.listID,
+          newReview.listName,
+        ];
+
+        try {
+          connection.query(sql2, values2, (error, results) => {
+            if (error) {
+              res.status(501).json({ error: "An SQL error occurred" });
+            } else {
+              res.status(200).json("all good");
+            }
+          });
+        } catch (error) {
+          res.status(500).json({ error: "An server side error occurred " });
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
 router3.get("/public-lists", (req, res) => {
   const sql = "SELECT * FROM Hero_Lists WHERE Public = ?";
   let lists = [];
@@ -90,6 +140,7 @@ router3.get("/public-lists", (req, res) => {
             heroes_info.push(hero_obj);
           }
           lists.push({
+            id: list.UserID,
             heroes: heroes_info,
             ListName: list.ListName,
             creator: list.Nickname,
@@ -97,6 +148,63 @@ router3.get("/public-lists", (req, res) => {
             rating: listRating,
             reviews: JSON.parse(list.Ratings),
             description: list.Description,
+          });
+        }
+
+        lists = lists.sort(
+          (a, b) => b.lastEdit.getTime() - a.lastEdit.getTime()
+        );
+        lists = lists.slice(0, 10);
+        res.status(200).json(lists);
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
+router3.get("/saved-lists/:id", (req, res) => {
+  const sql = "SELECT * FROM Hero_Lists WHERE UserID = ?";
+  let userID = req.params.id;
+  userID = sanitize(userID);
+  let lists = [];
+
+  try {
+    connection.query(sql, [userID], (error, results) => {
+      if (error) {
+        res.status(501).json({ error: "An SQL error occurred" });
+      } else {
+        for (let list of results) {
+          let heroes_info = [];
+          let ids = JSON.parse(list.HeroIDs);
+          let ratings = JSON.parse(list.Ratings);
+          let listRating = 0;
+
+          if (list.ratings) {
+            for (let rating of ratings) {
+              listRating = listRating + rating["rating"];
+            }
+            listRating = (listRating / ratings.length).toFixed(2);
+          } else {
+            listRating = "N/A";
+          }
+
+          for (let curr_id of ids) {
+            curr_id = Number(curr_id);
+            let hero_obj = hero_info.find((e) => e.id === curr_id);
+            heroes_info.push(hero_obj);
+          }
+
+          lists.push({
+            id: list.UserID,
+            heroes: heroes_info,
+            ListName: list.ListName,
+            creator: list.Nickname,
+            lastEdit: list.LastEdit,
+            rating: listRating,
+            reviews: JSON.parse(list.Ratings),
+            description: list.Description,
+            public: list.Public,
           });
         }
 

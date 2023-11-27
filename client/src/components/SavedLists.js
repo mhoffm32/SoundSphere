@@ -1,13 +1,16 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import UnauthHome from "./UnauthHome";
 
-const PublicLists = (props) => {
+const SavedLists = (props) => {
   const [expandedResults, setExpandedResults] = useState([]);
   const [expandedHeroes, setExpandedHeroes] = useState([]);
   const [heroLists, setLists] = useState();
   const [reviewsExpanded, setReviewsExpanded] = useState([]);
-  const [currRating, setRating] = useState(0);
-  const [currComment, setComment] = useState("");
+  const [newListName, setnewListName] = useState("");
+  const [heroIDs, setheroIDs] = useState([]);
+  const [description, setDes] = useState("");
+  const [isPublic, setPublic] = useState(0);
 
   const user = props.user ? props.user : false;
 
@@ -23,7 +26,6 @@ const PublicLists = (props) => {
 
   const toggleExpansionHeroes = (listIndex, heroIndex) => {
     const heroIdentifier = `${listIndex}-${heroIndex}`;
-
     if (expandedHeroes.includes(heroIdentifier)) {
       setExpandedHeroes(
         expandedHeroes.filter((expandedHero) => expandedHero !== heroIdentifier)
@@ -45,38 +47,40 @@ const PublicLists = (props) => {
 
   const getLists = async () => {
     try {
-      const response = await fetch(`/api/lists/public-lists`);
-      const listObj = await response.json();
+      const response = await fetch(`/api/lists/saved-lists/${user.id}`);
+      const lis = await response.json();
 
       if (!response.ok) {
         console.error(
           `Request to fetch lists failed with status ${response.status}: ${response.statusText}`
         );
       } else {
-        console.log(listObj);
-        setLists(listObj);
+        console.log(lis);
+        setLists(lis);
       }
     } catch (error) {
       console.error("Error fetching Public Lists:", error.message);
     }
   };
 
-  const postReview = async (listID, listName) => {
+  const newList = async () => {
     try {
-      const newReview = {
-        user: user.nName,
-        rating: currRating,
-        comment: currComment,
-        listID: listID,
-        listName: listName,
+      const newList = {
+        userID: user.id,
+        listName: newListName,
+        heroIDs: heroIDs,
+        nickname: user.nName,
+        ratings: [],
+        description: description,
+        public: isPublic,
       };
 
       const send = {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", // Specify the content type as JSON
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(newReview), // Convert the object to a JSON string
+        body: JSON.stringify(newList),
       };
 
       const response = await fetch("/api/lists/add-review", send);
@@ -84,7 +88,7 @@ const PublicLists = (props) => {
 
       if (!response.ok) {
         console.error(
-          `Request to add review failed with ${response.status}: ${response.statusText}`
+          `Request to add new listfailed with ${response.status}: ${response.statusText}`
         );
       } else {
         console.log("all good");
@@ -98,7 +102,8 @@ const PublicLists = (props) => {
 
   return (
     <div className="public-lists">
-      <h1>Public Hero Lists</h1>
+      <h1>My Hero Lists</h1>
+
       {heroLists !== null && heroLists !== undefined && (
         <div>
           {heroLists.map((list, index) => (
@@ -109,8 +114,7 @@ const PublicLists = (props) => {
               >
                 <h3>
                   {" "}
-                  {list.ListName} | Created By: {list.creator} | Heroes:{" "}
-                  {list.heroes.length} | Rating: {list.rating}{" "}
+                  {list.ListName}
                   {expandedResults.includes(index) ? ` ▲` : " ▼"}
                 </h3>
               </div>
@@ -180,7 +184,7 @@ const PublicLists = (props) => {
                     </div>
                   ))}
 
-                  {user && (
+                  {list.public == 1 && (
                     <div>
                       <div
                         className="result-header"
@@ -209,41 +213,6 @@ const PublicLists = (props) => {
                               </div>
                             </div>
                           ))}
-                          <h4 id="your-rating">Leave a Review:</h4>
-                          <div className="review-item">
-                            <span className="rev-label">Name:</span>{" "}
-                            {user.nName}
-                          </div>
-                          <div className="review-item">
-                            <span className="rev-label"> Rating:</span>
-                            <input
-                              id="rev_input"
-                              type="range"
-                              min="0"
-                              max="5"
-                              step="any"
-                              defaultValue="2.5"
-                              onChange={(e) => {
-                                setRating(Number(e.target.value).toFixed(1));
-                              }}
-                            />
-                            {currRating}
-                          </div>
-                          <div className="review-item">
-                            <span className="rev-label"> Comment:</span>
-                            <input
-                              type="text"
-                              placeholder="optional"
-                              onChange={(e) => {
-                                setComment(e.target.value);
-                              }}
-                            />
-                            <button
-                              onClick={() => postReview(list.id, list.ListName)}
-                            >
-                              Post
-                            </button>
-                          </div>
                         </div>
                       )}
                     </div>
@@ -258,4 +227,4 @@ const PublicLists = (props) => {
   );
 };
 
-export default PublicLists;
+export default SavedLists;

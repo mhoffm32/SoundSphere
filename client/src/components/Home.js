@@ -8,17 +8,17 @@ const Home = (props) => {
 
   return (
     <div>
-      <h2>Welcome</h2>
       {user ? (
         <div>
+          <h2>{user.nName}'s Hero Search</h2>
           <p>User ID: {user.id} </p>
           <p>User Name: {user.nName}</p>
           <p>User Email: {user.email}</p>
+          <UnauthHome user={user} />
         </div>
       ) : (
         <p>User is undefined</p>
       )}
-      <UnauthHome user={user} />
     </div>
   );
 };
