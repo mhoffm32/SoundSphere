@@ -11,6 +11,7 @@ const SavedLists = (props) => {
   const [heroIDs, setheroIDs] = useState([]);
   const [description, setDes] = useState("");
   const [isPublic, setPublic] = useState(0);
+  const [alertText, setAlertText] = useState("");
 
   const user = props.user ? props.user : false;
 
@@ -64,6 +65,36 @@ const SavedLists = (props) => {
   };
 
   const newList = async () => {
+    setAlertText("");
+
+    if (heroIDs.some(isNaN) || heroIDs.length == 0) {
+      setAlertText(`Please enter HeroIDs in the form: 1,2,3`);
+      return;
+    }
+
+    if (newListName === "") {
+      setAlertText("Please enter a valid list name");
+      return;
+    } else {
+      if (heroLists) {
+        if (heroLists.length >= 20) {
+          setAlertText(
+            "You have 20 lists already. Please delete one to add another"
+          );
+          return;
+        }
+        for (let list of heroLists) {
+          if (
+            list.ListName.toLowerCase().trim() ==
+            newListName.toLowerCase().trim()
+          ) {
+            setAlertText(`List named '${newListName}' already exists`);
+            return;
+          }
+        }
+      }
+    }
+
     try {
       const newList = {
         userID: user.id,
@@ -72,7 +103,7 @@ const SavedLists = (props) => {
         nickname: user.nName,
         ratings: [],
         description: description,
-        public: isPublic,
+        public: Number(isPublic),
       };
 
       const send = {
@@ -83,41 +114,111 @@ const SavedLists = (props) => {
         body: JSON.stringify(newList),
       };
 
-      const response = await fetch("/api/lists/add-review", send);
+      const response = await fetch("/api/lists/new-list", send);
       const res = await response.json();
 
       if (!response.ok) {
         console.error(
-          `Request to add new listfailed with ${response.status}: ${response.statusText}`
+          `Request to add new list failed with ${response.status}: ${res.message}`
         );
+        console.log("res", res);
       } else {
         console.log("all good");
         console.log(res);
         getLists();
       }
     } catch (error) {
-      console.error("Error adding new review.", error.message);
+      console.error("Error adding new list.", error.message);
+    }
+  };
+
+  const deleteList = async (list) => {
+    const response = await fetch(
+      `/api/lists/delete-list/${user.id}/${list.ListName}`
+    );
+
+    const res = await response.json();
+
+    try {
+      if (!response.ok) {
+        console.error(
+          `Request to delete list failed with ${response.status}: ${res.message}`
+        );
+        console.log("res", res);
+      } else {
+        console.log("all good");
+        console.log(res);
+        getLists();
+      }
+    } catch (error) {
+      console.error("Error adding new list.", error.message);
     }
   };
 
   return (
     <div className="public-lists">
+      <h1>Add a List</h1>
+      <span>
+        List Name:{" "}
+        <input
+          type="text"
+          id="listName"
+          placeholder="List Name"
+          onChange={(e) => setnewListName(e.target.value)}
+        />
+        Description:{" "}
+        <input
+          type="text"
+          id="description"
+          placeholder="optional"
+          onChange={(e) => setDes(e.target.value)}
+        />
+        Hero IDs:{" "}
+        <input
+          type="text"
+          id="heroids"
+          placeholder="ex. 18,9,40"
+          onChange={(e) =>
+            e.target.value !== ""
+              ? setheroIDs(e.target.value.split(",").map(Number))
+              : setheroIDs([])
+          }
+        />
+        <select
+          id="ispublic"
+          onChange={(e) => setPublic(Number(e.target.value))}
+        >
+          <option id="no-sort" key="private" value="0">
+            Private
+          </option>
+          <option id="no-sort" key="public" value="1">
+            Public
+          </option>
+        </select>
+        <button onClick={newList}>Add List</button>
+        <p id="alertText">{alertText}</p>
+      </span>
       <h1>My Hero Lists</h1>
 
       {heroLists !== null && heroLists !== undefined && (
         <div>
           {heroLists.map((list, index) => (
             <div key={index} className="search-result">
-              <div
-                className="result-header"
-                onClick={() => toggleExpansion(index)}
-              >
-                <h3>
+              <h3>
+                <div
+                  className="result-header"
+                  onClick={() => toggleExpansion(index)}
+                >
                   {" "}
                   {list.ListName}
                   {expandedResults.includes(index) ? ` ▲` : " ▼"}
-                </h3>
-              </div>
+                </div>
+                <button onClick={() => deleteList(list)} deleteList>
+                  Delete
+                </button>
+                <button>Edit</button>
+              </h3>
+
               {expandedResults.includes(index) && (
                 <div className="result-details">
                   <p>Description: {list.description} </p>

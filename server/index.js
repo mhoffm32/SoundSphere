@@ -60,6 +60,66 @@ app.use((req, res, next) => {
   next();
 });
 
+router3.post("/new-list", (req, res) => {
+  const newList = req.body;
+  const sql =
+    "INSERT INTO Hero_Lists(UserID, ListName, HeroIDs, Nickname, LastEdit, Description, Ratings, Public) VALUES (?,?,?,?,?,?,?,?)";
+  const values = [
+    sanitize(newList.userID),
+    sanitize(newList.listName),
+    sanitize(JSON.stringify(newList.heroIDs)),
+    sanitize(newList.nickname),
+    sanitize(getCurrentDateTime()),
+    sanitize(newList.description),
+    sanitize(JSON.stringify(newList.ratings)),
+    Number(sanitize(newList.public)),
+  ];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        res.status(501).json({ message: error });
+      } else {
+        res.status(200).json({ message: results });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
+router3.get("/delete-list/:id/:listName", (req, res) => {
+  const id = Number(sanitize(req.params.id));
+  const lName = sanitize(req.params.listName);
+  const sql = "DELETE FROM Hero_Lists WHERE UserID = ? AND ListName = ?";
+  const values = [id, lName];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        res.status(501).json({ message: error });
+      } else {
+        res.status(200).json({ message: "successfully deleted" });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
+function getCurrentDateTime() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  const dt = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return dt;
+}
+
 router3.post("/add-review", (req, res) => {
   const newReview = req.body;
   const sql =
@@ -85,9 +145,10 @@ router3.post("/add-review", (req, res) => {
         });
 
         const sql2 =
-          "Update Hero_Lists SET Ratings = ? WHERE UserID = ? AND listName = ?";
+          "Update Hero_Lists SET Ratings = ?, LastEdit = ? WHERE UserID = ? AND listName = ?";
         const values2 = [
           JSON.stringify(ratings),
+          sanitize(getCurrentDateTime()),
           newReview.listID,
           newReview.listName,
         ];
