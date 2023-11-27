@@ -1,9 +1,10 @@
-import React from 'react';
-import {useState,useEffect} from 'react';
+import React from "react";
+import { useState, useEffect } from "react";
+import UnauthHome from "./UnauthHome";
 
 const Home = (props) => {
-    
-  const { user } = props;
+  const user = props.user;
+  console.log(user);
 
   return (
     <div>
@@ -17,9 +18,9 @@ const Home = (props) => {
       ) : (
         <p>User is undefined</p>
       )}
+      <UnauthHome user={user} />
     </div>
   );
-}
-
+};
 
 export default Home;

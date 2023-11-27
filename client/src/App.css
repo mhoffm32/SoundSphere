@@ -10,15 +10,19 @@ h1{
 li {
     margin-bottom: 20px; /* Add margin between each list item */
     padding: 10px;
+    margin: 10px;
     display: flex; /* Use flexbox for layout control */
     align-items: center; /* Center contents vertically */
     justify-content: space-between; /* Distribute contents along the main axis (horizontally) */
 }
   
+#hero-title{
+    margin: 20px;
+}
 button {
     padding: 4px 8px;
     cursor: pointer;
-  }
+}
   
 #red {
     background-color: #ae2d1e;
@@ -31,10 +35,28 @@ button {
     color: #fff;
     border-radius: 5px;
 }
+
 #user-btns {
     display: flex;
     gap: 20px; /* Add space between buttons */
+}
+
+
+  .hero-detail-item {
+    padding-left: 40px; 
+  }
+  
+  .detail-label, .rev-label{
+   
+    font-weight: bold; 
+    color: #333; 
   }
 
-
-
+.review-item {
+    margin-bottom: 10px; 
+}
+  
+.rev-label {
+    font-weight: bold;
+    margin-right: 5px; 
+}
