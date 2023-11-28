@@ -12,6 +12,11 @@ const SavedLists = (props) => {
   const [description, setDes] = useState("");
   const [isPublic, setPublic] = useState(0);
   const [alertText, setAlertText] = useState("");
+  const [isEditing, setEdit] = useState(0);
+  const [editIndex, setEditIndex] = useState(0);
+  const [field, setField] = useState("ListName");
+  const [changeValue, setChangeValue] = useState("");
+  const [editWarning, setEditWarning] = useState("");
 
   const user = props.user ? props.user : false;
 
@@ -45,6 +50,12 @@ const SavedLists = (props) => {
   useEffect(() => {
     getLists();
   }, []);
+
+  useEffect(() => {
+    setEditWarning("");
+    setField("ListName");
+    setChangeValue("");
+  }, [isEditing]);
 
   const getLists = async () => {
     try {
@@ -155,6 +166,63 @@ const SavedLists = (props) => {
     }
   };
 
+  const submitEdit = async (list) => {
+    let editWarning = "";
+    let id = list.id;
+    let name = list.ListName;
+
+    if (field === "heroes") {
+      if (changeValue.some(isNaN) || changeValue.length == 0) {
+        editWarning = `Please enter HeroIDs in the form: 1,2,3`;
+        return;
+      }
+    } else if (field === "ListName") {
+      if (changeValue === "") {
+        editWarning = "Please enter a valid list name";
+        return;
+      } else {
+        if (heroLists) {
+          for (let l of heroLists) {
+            if (
+              l.ListName.toLowerCase().trim() ===
+                changeValue.toLowerCase().trim() &&
+              l.id !== list.id
+            ) {
+              editWarning = `List named '${changeValue}' already exists`;
+              return;
+            }
+          }
+        }
+      }
+    }
+    const response = await fetch(
+      `/api/lists/edit-list/${id}/${name}/${field}/${changeValue}`
+    );
+    const res = await response.json();
+
+    try {
+      if (!response.ok) {
+        console.error(
+          `Request to edit list failed with ${response.status}: ${res.message}`
+        );
+        console.log("res", res);
+      } else {
+        console.log("all good");
+        console.log(res);
+        getLists();
+      }
+    } catch (error) {
+      console.error("Error adding new list.", error.message);
+    }
+
+    setEditWarning(editWarning);
+  };
+
+  const setListEdit = (index) => {
+    isEditing ? setEdit(0) : setEdit(1);
+    setEditIndex(index);
+  };
+
   return (
     <div className="public-lists">
       <h1>Add a List</h1>
@@ -213,15 +281,111 @@ const SavedLists = (props) => {
                   {list.ListName}
                   {expandedResults.includes(index) ? ` ▲` : " ▼"}
                 </div>
-                <button onClick={() => deleteList(list)} deleteList>
-                  Delete
+                <button onClick={() => deleteList(list)}>Delete</button>
+                <button
+                  onClick={() => {
+                    setListEdit(index);
+                  }}
+                >
+                  {isEditing && editIndex == index ? "Cancel Edit" : "Edit"}
                 </button>
-                <button>Edit</button>
               </h3>
+
+              {isEditing && editIndex == index ? (
+                <div id="editing">
+                  Edit:
+                  <select id="field" onChange={(e) => setField(e.target.value)}>
+                    <option key="ListName" value="ListName">
+                      List Name
+                    </option>
+                    <option key="description" value="Description">
+                      Description
+                    </option>
+                    <option key="heroes" value="heroes">
+                      Heroes
+                    </option>
+                    <option key="visibility" value="public">
+                      Visibility
+                    </option>
+                  </select>
+                  {field === "ListName" ? (
+                    <span>
+                      List Name:
+                      <input
+                        maxLength={30}
+                        type="text"
+                        id="listName"
+                        placeholder=""
+                        onChange={(e) => setChangeValue(e.target.value)}
+                      />
+                    </span>
+                  ) : (
+                    <></>
+                  )}
+                  {field === "Description" ? (
+                    <span>
+                      Description:
+                      <input
+                        type="text"
+                        id="listName"
+                        placeholder=""
+                        onChange={(e) => setChangeValue(e.target.value)}
+                      />
+                    </span>
+                  ) : (
+                    <></>
+                  )}
+                  {field === "heroes" ? (
+                    <>
+                      <span>
+                        Heroes:
+                        <input
+                          type="text"
+                          id="heroids"
+                          placeholder="ex. 18,9,40"
+                          onChange={(e) =>
+                            e.target.value !== ""
+                              ? setChangeValue(
+                                  e.target.value.split(",").map(Number)
+                                )
+                              : setChangeValue([])
+                          }
+                        />
+                      </span>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  {field === "public" ? (
+                    <>
+                      {field ? "visibility" : ""}
+                      <select
+                        id="ispublic"
+                        onChange={(e) => setChangeValue(Number(e.target.value))}
+                      >
+                        <option id="no-sort" key="private" value="0">
+                          Private
+                        </option>
+                        <option id="no-sort" key="public" value="1">
+                          Public
+                        </option>
+                      </select>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  <button onClick={() => submitEdit(list)}>Submit</button>
+                  {editWarning}
+                </div>
+              ) : (
+                <></>
+              )}
+              <p></p>
 
               {expandedResults.includes(index) && (
                 <div className="result-details">
                   <p>Description: {list.description} </p>
+                  <p>Visibility: {list.public == 0 ? "private" : "public"} </p>
                   {list.heroes.map((hero, heroIndex) => (
                     <div key={heroIndex}>
                       <div key={heroIndex} className="search-result">
@@ -296,26 +460,30 @@ const SavedLists = (props) => {
                           {reviewsExpanded === index ? " -" : " +"}
                         </h4>
                       </div>
-                      {reviewsExpanded === index && (
-                        <div className="reviews">
-                          {list.reviews.map((review, index) => (
-                            <div key={index} className="reviews">
-                              <div className="review-item">
-                                <span className="rev-label">Name:</span>{" "}
-                                {review.user}
+
+                      {reviewsExpanded === index &&
+                        (list.reviews.length > 0 ? (
+                          <div className="reviews">
+                            {list.reviews.map((review, index) => (
+                              <div key={index} className="reviews">
+                                <div className="review-item">
+                                  <span className="rev-label">Name:</span>{" "}
+                                  {review.user}
+                                </div>
+                                <div className="review-item">
+                                  <span className="rev-label">Rating:</span>{" "}
+                                  {review.rating}/5
+                                </div>
+                                <div className="review-item">
+                                  <span className="rev-label">Comment:</span>{" "}
+                                  {review.comment}
+                                </div>
                               </div>
-                              <div className="review-item">
-                                <span className="rev-label">Rating:</span>{" "}
-                                {review.rating}/5
-                              </div>
-                              <div className="review-item">
-                                <span className="rev-label">Comment:</span>{" "}
-                                {review.comment}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                            ))}
+                          </div>
+                        ) : (
+                          <>No reviews to display.</>
+                        ))}
                     </div>
                   )}
                 </div>

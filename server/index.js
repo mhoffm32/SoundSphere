@@ -107,6 +107,48 @@ router3.get("/delete-list/:id/:listName", (req, res) => {
   }
 });
 
+router3.get("/edit-list/:id/:listName/:field/:value", (req, res) => {
+  const id = Number(sanitize(req.params.id));
+  const lName = sanitize(req.params.listName);
+  let field = sanitize(req.params.field);
+  let value = sanitize(req.params.value);
+
+  if (field === "public") {
+    value = Number(value);
+  } else if (field === "heroes") {
+    field = "HeroIDs";
+    value = JSON.stringify(value);
+  }
+
+  const sql = `UPDATE Hero_Lists SET ${field} = ? WHERE UserID = ? AND ListName = ?`;
+  const values = [value, id, lName];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        res.status(501).json({ message: error });
+      } else {
+        try {
+          const sql2 =
+            "UPDATE Hero_Lists SET LastEdit = ? WHERE UserID = ? AND ListName = ?";
+          const value = [getCurrentDateTime(), id, lName];
+          connection.query(sql2, value, (error, results) => {
+            if (error) {
+              res.status(501).json({ message: error });
+            } else {
+              res.status(200).json({ message: "successfully updated" });
+            }
+          });
+        } catch (error) {
+          res.status(500).json({ error: "An server side error occurred " });
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
 function getCurrentDateTime() {
   const now = new Date();
   const year = now.getFullYear();
@@ -145,10 +187,9 @@ router3.post("/add-review", (req, res) => {
         });
 
         const sql2 =
-          "Update Hero_Lists SET Ratings = ?, LastEdit = ? WHERE UserID = ? AND listName = ?";
+          "Update Hero_Lists SET Ratings = ? WHERE UserID = ? AND listName = ?";
         const values2 = [
           JSON.stringify(ratings),
-          sanitize(getCurrentDateTime()),
           newReview.listID,
           newReview.listName,
         ];
