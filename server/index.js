@@ -174,6 +174,9 @@ router3.post("/add-review", (req, res) => {
         res.status(501).json({ error: "An SQL error occurred" });
       } else {
         let ratings = JSON.parse(results[0].Ratings);
+        if (ratings == null) {
+          ratings = [];
+        }
         let comment = newReview.comment;
 
         if (comment.trim() === "") {
@@ -184,6 +187,7 @@ router3.post("/add-review", (req, res) => {
           user: newReview.user,
           rating: newReview.rating,
           comment: comment,
+          hidden: 0,
         });
 
         const sql2 =
@@ -192,6 +196,59 @@ router3.post("/add-review", (req, res) => {
           JSON.stringify(ratings),
           newReview.listID,
           newReview.listName,
+        ];
+
+        try {
+          connection.query(sql2, values2, (error, results) => {
+            if (error) {
+              res.status(501).json({ error: "An SQL error occurred" });
+            } else {
+              res.status(200).json("all good");
+            }
+          });
+        } catch (error) {
+          res.status(500).json({ error: "An server side error occurred " });
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
+router3.post("/manage-review", (req, res) => {
+  const listDetails = req.body.list;
+  const revDetails = req.body.review;
+
+  const sql =
+    "SELECT Ratings From Hero_Lists WHERE UserID = ? AND listName = ?";
+  const values = [listDetails.id, listDetails.ListName];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        res.status(501).json({ error: "An SQL error occurred" });
+      } else {
+        let ratings = JSON.parse(results[0].Ratings);
+        if (ratings == null) {
+          ratings = [];
+        }
+
+        for (r of ratings) {
+          if (
+            r.user == revDetails.user &&
+            r.rating == revDetails.rating &&
+            r.comment == revDetails.comment
+          ) {
+            r.hidden = !revDetails.hidden;
+          }
+        }
+        const sql2 =
+          "Update Hero_Lists SET Ratings = ? WHERE UserID = ? AND listName = ?";
+        const values2 = [
+          JSON.stringify(ratings),
+          listDetails.id,
+          listDetails.ListName,
         ];
 
         try {
@@ -229,7 +286,7 @@ router3.get("/public-lists", (req, res) => {
 
           if (ratings) {
             for (let rating of ratings) {
-              listRating = listRating + rating["rating"];
+              listRating = listRating + Number(rating["rating"]);
             }
             listRating = (listRating / ratings.length).toFixed(2);
           } else {
@@ -247,7 +304,7 @@ router3.get("/public-lists", (req, res) => {
             ListName: list.ListName,
             creator: list.Nickname,
             lastEdit: list.LastEdit,
-            rating: listRating,
+            rating: Number(listRating),
             reviews: JSON.parse(list.Ratings),
             description: list.Description,
           });
@@ -279,7 +336,12 @@ router3.get("/saved-lists/:id", (req, res) => {
         for (let list of results) {
           let heroes_info = [];
           let ids = JSON.parse(list.HeroIDs);
-          let ratings = JSON.parse(list.Ratings);
+
+          if (list.ratings == null) {
+            let lratings = [];
+          } else {
+            let lratings = JSON.parse(list.Ratings);
+          }
           let listRating = 0;
 
           if (list.ratings) {
@@ -304,7 +366,7 @@ router3.get("/saved-lists/:id", (req, res) => {
             creator: list.Nickname,
             lastEdit: list.LastEdit,
             rating: listRating,
-            reviews: JSON.parse(list.Ratings),
+            reviews: lRatings,
             description: list.Description,
             public: list.Public,
           });

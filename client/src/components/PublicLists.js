@@ -65,7 +65,7 @@ const PublicLists = (props) => {
     try {
       const newReview = {
         user: user.nName,
-        rating: currRating,
+        rating: Number(currRating),
         comment: currComment,
         listID: listID,
         listName: listName,
@@ -85,6 +85,37 @@ const PublicLists = (props) => {
       if (!response.ok) {
         console.error(
           `Request to add review failed with ${response.status}: ${response.statusText}`
+        );
+      } else {
+        console.log("all good");
+        console.log(res);
+        getLists();
+      }
+    } catch (error) {
+      console.error("Error adding new review.", error.message);
+    }
+  };
+
+  const manageReview = async (list, review) => {
+    try {
+      const info = {
+        list: list,
+        review: review,
+      };
+      const send = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Specify the content type as JSON
+        },
+        body: JSON.stringify(info), // Convert the object to a JSON string
+      };
+
+      const response = await fetch("/api/lists/manage-review", send);
+      const res = await response.json();
+
+      if (!response.ok) {
+        console.error(
+          `Request to edit review failed with ${response.status}: ${response.statusText}`
         );
       } else {
         console.log("all good");
@@ -193,22 +224,71 @@ const PublicLists = (props) => {
                       </div>
                       {reviewsExpanded === index && (
                         <div className="reviews">
-                          {list.reviews.map((review, index) => (
-                            <div key={index} className="reviews">
-                              <div className="review-item">
-                                <span className="rev-label">Name:</span>{" "}
-                                {review.user}
-                              </div>
-                              <div className="review-item">
-                                <span className="rev-label">Rating:</span>{" "}
-                                {review.rating}/5
-                              </div>
-                              <div className="review-item">
-                                <span className="rev-label">Comment:</span>{" "}
-                                {review.comment}
-                              </div>
-                            </div>
-                          ))}
+                          {list.reviews == null ? (
+                            <>No reviews to display</>
+                          ) : (
+                            <>
+                              {list.reviews.map((review, index) => (
+                                <div key={index} className="reviews">
+                                  {!review.hidden && !user.admin ? (
+                                    <>
+                                      <div className="review-item">
+                                        <span className="rev-label">Name:</span>{" "}
+                                        {review.user}
+                                      </div>
+                                      <div className="review-item">
+                                        <span className="rev-label">
+                                          Rating:
+                                        </span>{" "}
+                                        {review.rating}/5
+                                      </div>
+                                      <div className="review-item">
+                                        <span className="rev-label">
+                                          Comment:
+                                        </span>{" "}
+                                        {review.comment}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                  {user.admin ? (
+                                    <>
+                                      <div className="review-item">
+                                        <span className="rev-label">Name:</span>{" "}
+                                        {review.user}
+                                      </div>
+                                      <div className="review-item">
+                                        <span className="rev-label">
+                                          Rating:
+                                        </span>{" "}
+                                        {review.rating}/5
+                                      </div>
+                                      <div className="review-item">
+                                        <span className="rev-label">
+                                          Comment:
+                                        </span>{" "}
+                                        {review.comment}
+                                      </div>
+                                      <button
+                                        onClick={() =>
+                                          manageReview(list, review)
+                                        }
+                                      >
+                                        {review.hidden ? (
+                                          <>Unhide review</>
+                                        ) : (
+                                          <>Hide Review</>
+                                        )}
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </div>
+                              ))}
+                            </>
+                          )}
                           <h4 id="your-rating">Leave a Review:</h4>
                           <div className="review-item">
                             <span className="rev-label">Name:</span>{" "}
