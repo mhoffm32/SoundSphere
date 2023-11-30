@@ -5,7 +5,6 @@ import SignUp from "./components/SignUp";
 import Info from "./components/Info";
 import Home from "./components/Home";
 import AdminHome from "./components/AdminHome";
-import Policy from "./components/Policy";
 import User from "./User";
 import "./App.css";
 

@@ -1,5 +1,6 @@
 const natural = require("natural");
 const express = require("express");
+const bcrypt = require("bcrypt");
 const app = express();
 const port = 5001;
 const host = "localhost";
@@ -12,6 +13,8 @@ const router3 = express.Router();
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 app.use(bodyParser.json());
+
+let currUserVerified = false;
 
 let unverifiedUsers = [];
 
@@ -393,23 +396,7 @@ router.get("/", (req, res) => {
   }
 });
 
-app.get("/verify-email/:token", (req, res) => {
-  let token = decodeURIComponent(req.params.token);
-  token = token.split("/");
-  token = token[token.length - 1];
-
-  // Find the user with the matching verification token
-  const cuser = unverifiedUsers.find((u) => u.token === token);
-
-  if (cuser) {
-    // Mark the user as verified (update your database accordingly)
-    res
-      .status(200)
-      .json({ message: `Your verification code is ${cuser.code}` });
-  } else {
-    res.status(404).json({ message: `Invalid verification link: ${token}` });
-  }
-});
+// Assuming unverifiedUsers is a global variable
 
 app.get(`/verify-email/:token/:code`, (req, res) => {
   let token = decodeURIComponent(req.params.token);
@@ -422,12 +409,12 @@ app.get(`/verify-email/:token/:code`, (req, res) => {
   );
 
   if (userToVerify) {
-    //removing from the temp array
+    currUserVerified = userToVerify.user;
     unverifiedUsers = unverifiedUsers.filter(
       (u) => userToVerify.user.email !== u.user.email
     );
 
-    const sql = "INSERT INTO Users(nName,email,password) VALUES (?,?,?)";
+    const sql = "INSERT INTO Users(nName, email, password) VALUES (?,?,?)";
     const values = [
       userToVerify.user.nName,
       userToVerify.user.email,
@@ -439,6 +426,7 @@ app.get(`/verify-email/:token/:code`, (req, res) => {
         if (error) {
           res.status(409).json({ error: error.message });
         } else {
+          currUserVerified.userID = results.insertId;
           res.status(200).json({
             message: "User Verified successfully",
             userID: results.insertId,
@@ -454,11 +442,77 @@ app.get(`/verify-email/:token/:code`, (req, res) => {
   } else {
     res.status(404).json({
       message: `Invalid verification token: ${token}, Code: ${code}`,
-      users: users,
+      users: unverifiedUsers, // Change 'users' to 'unverifiedUsers' if that's the correct array
     });
   }
 });
 
+app.get(`/api/check-verified/:email`, (req, res) => {
+  const user_email = sanitize(req.params.email.trim());
+  if (currUserVerified && currUserVerified.email === user_email) {
+    res.status(200).json({
+      user: currUserVerified,
+      userID: currUserVerified.userID,
+      message: "User Verified successfully",
+      status: 200,
+    });
+  } else {
+    res.status(404).json({ message: "user not yet verified", status: 404 });
+  }
+});
+
+router2.post("/add-user", (req, res) => {
+  const newUser = req.body;
+
+  // Generate a unique verification token (mocked using user information)
+  const verificationToken = crypto
+    .createHash("sha256")
+    .update(newUser.email + newUser.nName + newUser.password)
+    .digest("hex");
+
+  const randomCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
+
+  // Store user information in memory
+  unverifiedUsers.push({
+    user: newUser,
+    token: verificationToken,
+    verified: false,
+    code: randomCode,
+  });
+
+  // Display the verification link to the user (mocked email)
+  const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}/${randomCode}`;
+
+  // Checking if user exists already
+  const sql = "SELECT * FROM Users WHERE email = ?";
+  const values = [newUser.email];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        if (error.errno === 1062) {
+          res.status(500).json({ error: error.message });
+        }
+      } else {
+        if (results.length) {
+          res.status(409).json({ error: "User already exists" });
+        } else {
+          res.status(200).json({
+            message: `Account created.`,
+            link: verificationLink,
+            status: 200,
+          });
+        }
+      }
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while appending data to the file" });
+  }
+});
+
+/*
 router2.post("/add-user", (req, res) => {
   const newUser = req.body;
 
@@ -509,7 +563,7 @@ router2.post("/add-user", (req, res) => {
       .status(500)
       .json({ error: "An error occurred while appending data to the file" });
   }
-});
+});*/
 
 router2.get("/users_list", (req, res) => {
   const sql = "SELECT * FROM Users";
@@ -660,40 +714,6 @@ router.post("/newList", (req, res) => {
       }
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while appending data to the file" });
-  }
-});
-
-router.post("/newList", (req, res) => {
-  try {
-    // Getting existing data
-    const jsonData = fs.readFileSync("data/superhero_lists.json", "utf8");
-    const jsonArray = JSON.parse(jsonData);
-    let exists = false;
-
-    const newData = req.body;
-    console.log(newData);
-
-    for (const list of jsonArray) {
-      if (list.name === newData.name) {
-        exists = true;
-        break;
-      }
-    }
-
-    if (exists) {
-      res.status(409).json({ error: "List name already exists" });
-    } else {
-      jsonArray.push(newData);
-      const updatedData = JSON.stringify(jsonArray, null, 2);
-      fs.writeFileSync("data/superhero_lists.json", updatedData);
-      console.log("Data appended to the JSON file.");
-      res.json({ message: "Data appended successfully" });
-    }
-  } catch (error) {
-    console.error("Error appending data to the JSON file:", error);
     res
       .status(500)
       .json({ error: "An error occurred while appending data to the file" });

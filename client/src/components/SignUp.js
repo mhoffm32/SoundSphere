@@ -11,7 +11,9 @@ const SignUp = ({ onSignup }) => {
   const [verificationLink, setVerificationLink] = useState("");
   const [localstate, setstate] = useState("signup");
   const [verified, setVerified] = useState(false);
+  const [vText, setVText] = useState("");
   const [vCode, setVCode] = useState(0);
+  const [vStatus, setvStatus] = useState("Waiting for Verification...");
 
   useEffect(() => {
     if (localstate) {
@@ -71,30 +73,18 @@ const SignUp = ({ onSignup }) => {
     }
   };
 
-  const handleKeyDown = (event) => {
-    const keyCode = event.which || event.keyCode;
-    // Allow only numeric characters (0-9) and the backspace key
-    if ((keyCode < 48 || keyCode > 57) && keyCode !== 8) {
-      event.preventDefault();
-    }
-  };
-
-  const handleInputChange = (event) => {
-    // Remove non-numeric characters using a regular expression
-    const numericValue = event.target.value.replace(/[^0-9]/g, "");
-    setVCode(Number(numericValue));
-  };
-
   const verifyEmail = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     try {
-      const response = await fetch(
-        `/verify-email/${encodeURIComponent(verificationLink)}/${vCode}`
-      );
+      const response = await fetch(`/api/check-verified/${email}`);
       const data = await response.json();
 
       if (response.ok) {
+        setstate("verified");
         setVerified(true);
-        alert(`Email: ${email} successfully verified. Logging in....`);
+        setVText(`Email: ${email} successfully verified. Logging in....`);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         setUserID(data.userID);
         setstate("loggedin");
       } else {
@@ -105,6 +95,8 @@ const SignUp = ({ onSignup }) => {
       console.error("Error verifying email:", error.message);
     }
   };
+
+  const login = () => {};
 
   return (
     <div className="signup">
@@ -140,17 +132,28 @@ const SignUp = ({ onSignup }) => {
       <button onClick={handleSignup}>Sign Up</button>
       {verificationLink && (
         <div>
-          <p> Open link to receive verification code: {verificationLink} </p>
-          <span>
-            5 Digit Verification Code:{" "}
-            <input
-              type="text"
-              id="vCode"
-              onKeyDown={handleKeyDown}
-              onChange={handleInputChange}
-            />
-          </span>
-          <button onClick={verifyEmail}>Verify Email</button>
+          {localstate == "verifying" ? (
+            <>
+              <a
+                href={verificationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={verifyEmail}
+              >
+                Click here to verify your email
+              </a>
+              <p>Status: Awaiting Verification....</p>
+            </>
+          ) : (
+            <></>
+          )}
+          {localstate == "verified" ? (
+            <>
+              <p>{vText}</p>
+            </>
+          ) : (
+            <></>
+          )}
         </div>
       )}
     </div>
