@@ -5,6 +5,7 @@ import SignUp from "./components/SignUp";
 import Info from "./components/Info";
 import Home from "./components/Home";
 import AdminHome from "./components/AdminHome";
+import Policy from "./components/Policy";
 import User from "./User";
 import "./App.css";
 
@@ -52,44 +53,46 @@ function App() {
 
   return (
     <div>
-      {state != "login" ? (
-        <div>
-          <button onClick={onLoginClick}>{loginText}</button>
-          {current_user !== null && current_user.id !== 0 ? (
-            <>
-              Current User: {current_user.nName} User ID: {current_user.id}{" "}
-            </>
-          ) : (
-            <></>
-          )}
-        </div>
-      ) : (
-        <></>
-      )}
-      {state !== "info" && state !== "loggedin" ? (
-        <button onClick={returnPage}> Return </button>
-      ) : (
-        <></>
-      )}
+      <div id="content">
+        {state != "login" ? (
+          <div>
+            <button onClick={onLoginClick}>{loginText}</button>
+            {current_user !== null && current_user.id !== 0 ? (
+              <>
+                Current User: {current_user.nName} User ID: {current_user.id}{" "}
+              </>
+            ) : (
+              <></>
+            )}
+          </div>
+        ) : (
+          <></>
+        )}
+        {state !== "info" && state !== "loggedin" ? (
+          <button onClick={returnPage}> Return </button>
+        ) : (
+          <></>
+        )}
 
-      {state == "info" ? (
-        <Info choice={handleState} user={current_user} />
-      ) : (
-        <></>
-      )}
-      {state == "login" ? <Login onLogin={handleLogin} /> : <></>}
-      {state == "signup" ? <SignUp onSignup={handleLogin} /> : <></>}
-      {state == "loggedin" && userType == "general" ? (
-        <Home user={current_user} />
-      ) : (
-        <></>
-      )}
-      {state == "loggedin" && userType == "admin" ? (
-        <AdminHome user={current_user} />
-      ) : (
-        <></>
-      )}
-      {state == "user" ? <Home user={current_user} /> : <></>}
+        {state == "info" ? (
+          <Info choice={handleState} user={current_user} />
+        ) : (
+          <></>
+        )}
+        {state == "login" ? <Login onLogin={handleLogin} /> : <></>}
+        {state == "signup" ? <SignUp onSignup={handleLogin} /> : <></>}
+        {state == "loggedin" && userType == "general" ? (
+          <Home user={current_user} />
+        ) : (
+          <></>
+        )}
+        {state == "loggedin" && userType == "admin" ? (
+          <AdminHome user={current_user} />
+        ) : (
+          <></>
+        )}
+        {state == "user" ? <Home user={current_user} /> : <></>}
+      </div>
     </div>
   );
 }

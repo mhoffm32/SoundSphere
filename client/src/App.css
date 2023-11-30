@@ -62,7 +62,29 @@ button {
     font-weight: bold;
     margin-right: 5px; 
 }
+
 h4{
     margin-bottom: 5px;
 }
-  
+
+#policies a{
+    display: inline-block;
+    padding: 10px;
+    text-align: center;
+    text-decoration: underline;
+}
+
+#policies{
+    margin-top: 100px;
+    text-align: center;
+    right: 0;
+    left: 0;
+    bottom: 0;
+}
+
+
+#content {
+    flex: 1;
+    /* Add styles for your main content container as needed */
+}
+
