@@ -396,6 +396,57 @@ router.get("/", (req, res) => {
   }
 });
 
+/*
+app.get(`/verify-email/:token/:code`, (req, res) => {
+  let token = decodeURIComponent(req.params.token);
+  token = token.split("/");
+  token = token[token.length - 1];
+  let code = Number(req.params.code);
+
+  const userToVerify = unverifiedUsers.find(
+    (u) => u.token === token && u.code === code
+  );
+
+  if (userToVerify) {
+    const { nName, email, password } = userToVerify.user;
+
+    // Generate a salt and hash the password
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(password, salt, (err, hash) => {
+        if (err) {
+          res.status(500).json({ error: "Error hashing the password" });
+        } else {
+          const sql =
+            "INSERT INTO Users(nName, email, password) VALUES (?,?,?)";
+          const values = [nName, email, hash];
+
+          try {
+            connection.query(sql, values, (error, results) => {
+              if (error) {
+                res.status(409).json({ error: error.message });
+              } else {
+                userToVerify.user.userID = results.insertId;
+                res
+                  .status(200)
+                  .json(`User with email ${email} verified successfully!`);
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              error: "An error occurred while appending data to the file",
+            });
+          }
+        }
+      });
+    });
+  } else {
+    res.status(404).json({
+      message: `Invalid verification token: ${token}, Code: ${code}`,
+      users: unverifiedUsers,
+    });
+  }
+});*/
+
 // Assuming unverifiedUsers is a global variable
 
 app.get(`/verify-email/:token/:code`, (req, res) => {
@@ -427,11 +478,11 @@ app.get(`/verify-email/:token/:code`, (req, res) => {
           res.status(409).json({ error: error.message });
         } else {
           currUserVerified.userID = results.insertId;
-          res.status(200).json({
-            message: "User Verified successfully",
-            userID: results.insertId,
-            status: 200,
-          });
+          res
+            .status(200)
+            .json(
+              `User with email ${currUserVerified.email} verified successfully!`
+            );
         }
       });
     } catch (error) {
@@ -442,7 +493,7 @@ app.get(`/verify-email/:token/:code`, (req, res) => {
   } else {
     res.status(404).json({
       message: `Invalid verification token: ${token}, Code: ${code}`,
-      users: unverifiedUsers, // Change 'users' to 'unverifiedUsers' if that's the correct array
+      users: unverifiedUsers,
     });
   }
 });
@@ -461,6 +512,60 @@ app.get(`/api/check-verified/:email`, (req, res) => {
   }
 });
 
+router2.post("/add-user", (req, res) => {
+  const newUser = req.body;
+
+  const verificationToken = crypto
+    .createHash("sha256")
+    .update(newUser.email + newUser.nName + newUser.password)
+    .digest("hex");
+
+  const randomCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
+
+  bcrypt.hash(newUser.password, 10, (hashError, hashedPassword) => {
+    if (hashError) {
+      res.status(500).json({ error: "Error hashing the password" });
+      return;
+    }
+    unverifiedUsers.push({
+      user: { ...newUser, password: hashedPassword },
+      token: verificationToken,
+      verified: false,
+      code: randomCode,
+    });
+
+    const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}/${randomCode}`;
+
+    const sql = "SELECT * FROM Users WHERE email = ?";
+    const values = [newUser.email];
+
+    try {
+      connection.query(sql, values, (error, results) => {
+        if (error) {
+          if (error.errno === 1062) {
+            res.status(500).json({ error: error.message });
+          }
+        } else {
+          if (results.length) {
+            res.status(409).json({ error: "User already exists" });
+          } else {
+            res.status(200).json({
+              message: `Awaiting Verification`,
+              link: verificationLink,
+              status: 200,
+            });
+          }
+        }
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "An error occurred while appending data to the file" });
+    }
+  });
+});
+
+/*
 router2.post("/add-user", (req, res) => {
   const newUser = req.body;
 
@@ -498,7 +603,7 @@ router2.post("/add-user", (req, res) => {
           res.status(409).json({ error: "User already exists" });
         } else {
           res.status(200).json({
-            message: `Account created.`,
+            message: `Awaiting Verification`,
             link: verificationLink,
             status: 200,
           });
@@ -510,7 +615,7 @@ router2.post("/add-user", (req, res) => {
       .status(500)
       .json({ error: "An error occurred while appending data to the file" });
   }
-});
+});*/
 
 /*
 router2.post("/add-user", (req, res) => {
@@ -589,6 +694,39 @@ router2.get("/get_user/:email/:password", (req, res) => {
   const userEmail = sanitize(req.params.email.trim());
   const userPass = sanitize(req.params.password.trim());
 
+  const sql = "SELECT * FROM Users WHERE email = ?";
+  const values = [userEmail];
+
+  try {
+    connection.query(sql, values, async (error, results) => {
+      if (error) {
+        res.status(501).json({ error: "An sql error occurred" });
+      } else {
+        if (results.length > 0) {
+          const hashedPassword = results[0].password;
+
+          const match = await bcrypt.compare(userPass, hashedPassword);
+
+          if (match) {
+            res.status(200).json({ user: results[0] });
+          } else {
+            res.status(404).json({ message: "Invalid Credentials" });
+          }
+        } else {
+          res.status(404).json({ message: "Invalid Credentials" });
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "A server-side error occurred" });
+  }
+});
+
+/*
+router2.get("/get_user/:email/:password", (req, res) => {
+  const userEmail = sanitize(req.params.email.trim());
+  const userPass = sanitize(req.params.password.trim());
+
   const sql = "SELECT * FROM Users WHERE email = ? AND password = ?";
   const values = [userEmail, userPass];
 
@@ -608,8 +746,7 @@ router2.get("/get_user/:email/:password", (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "An server side error occurred " });
   }
-});
-
+});*/
 router2.get("/disable-user/:id/:status", (req, res) => {
   let disabled = sanitize(req.params.status.trim());
   let userid = sanitize(req.params.id.trim());
@@ -657,7 +794,6 @@ router2.get("/admin-user/:id/:status", (req, res) => {
 
 router.post("/deleteList", (req, res) => {
   try {
-    // Getting existing data
     const jsonData = fs.readFileSync("data/superhero_lists.json", "utf8");
     const jsonArray = JSON.parse(jsonData);
     let exists = false;

@@ -1,77 +1,87 @@
-import React from 'react';
-import {useState, useEffect} from 'react';
-import User from "../User.js"
+import React from "react";
+import { useState, useEffect } from "react";
+import User from "../User.js";
 
-const Login = ({onLogin}) => {
+const Login = ({ onLogin }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [localstate, setstate] = useState("login");
+  const [curr_user, setUser] = useState(new User(0, "", "", ""));
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [localstate, setstate] = useState('login')
-    const [curr_user, setUser] = useState(new User(0,'','',''))
+  useEffect(() => {
+    if (localstate) {
+      onLogin({ state: localstate, user: curr_user });
+    }
+  }, [localstate]);
 
-    useEffect(() => {
-        if(localstate){
-          onLogin({state: localstate, user: curr_user})
-        }
-      }, [localstate]);
+  const handleLog = async () => {
+    if (email && password) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-
-    const handleLog = async () => {
-        if (email && password) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if(!emailRegex.test(email)){
-                alert("invalid email format")
-            }else{
-                let res = await getUser()
-                if (res == 404){
-                    alert("Invalid Credentials")
-                }else if(res == 500 || res == null){
-                    alert("An error occured. Please try again.")
-                }else {
-                    if(res.disabled){
-                        alert("Disabled Account. Please contact the site adminstarator for more details.");
-                    }else{
-                        let u = new User(res.userID,res.nName,res.email,res.password)
-                        u.admin = res.admin;
-                        setUser(u)
-                        setstate("loggedin")
-                    }
-                }
-            }
+      if (!emailRegex.test(email)) {
+        alert("invalid email format");
+      } else {
+        let res = await getUser();
+        if (res == 404) {
+          alert("Invalid Credentials");
+        } else if (res == 500 || res == null) {
+          alert("An error occured. Please try again.");
         } else {
-            alert('Please enter both a username and password.');
-        }
-    };
-
-    async function getUser() {
-        try {
-              const response = await fetch(`/api/users/get_user/${email}/${password}`);
-              const data = await response.json();
-              if(response.status == 200){
-                return data.user;
-              } else if (response.status == 404){
-                return 404;
-              }else{
-                return 500;
-              }
-
-        } catch (error) {
-              console.error("Error occured:", error);
-              return null; // or handle the error in a way that makes sense for your application
+          if (res.disabled) {
+            alert(
+              "Disabled Account. Please contact the site adminstarator for more details."
+            );
+          } else {
+            let u = new User(res.userID, res.nName, res.email, res.password);
+            u.admin = res.admin;
+            setUser(u);
+            setstate("loggedin");
+          }
         }
       }
+    } else {
+      alert("Please enter both a username and password.");
+    }
+  };
 
-    return(
-        <div className='login'>
-            <span>
-            Email: <input type="text" id="email" onChange={(e) => setEmail(e.target.value)}/><br/>
-            Password: <input type="text" id="password" onChange={(e) => setPassword(e.target.value)}/>
-            </span>
+  async function getUser() {
+    try {
+      const response = await fetch(`/api/users/get_user/${email}/${password}`);
+      const data = await response.json();
+      if (response.status == 200) {
+        return data.user;
+      } else if (response.status == 404) {
+        return 404;
+      } else {
+        return 500;
+      }
+    } catch (error) {
+      console.error("Error occured:", error);
+      return null; // or handle the error in a way that makes sense for your application
+    }
+  }
 
-            <button onClick={handleLog}>Login</button>
-        </div>
-    )
-}
+  return (
+    <div className="login">
+      <span>
+        Email:{" "}
+        <input
+          type="text"
+          id="email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <br />
+        Password:{" "}
+        <input
+          type="text"
+          id="password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </span>
+
+      <button onClick={handleLog}>Login</button>
+    </div>
+  );
+};
 
 export default Login;

@@ -96,8 +96,6 @@ const SignUp = ({ onSignup }) => {
     }
   };
 
-  const login = () => {};
-
   return (
     <div className="signup">
       <span>

@@ -89,9 +89,9 @@ const AdminHome = (props) => {
 
   return (
     <div>
-      <h2>{state == "admin" ? <>Admin Management</> : <>Hero Management</>}</h2>
+      <h2>{state == "admin" ? <>Admin Tools</> : <>Hero Management</>}</h2>
       <button value="admin" onClick={(e) => setState(e.target.value)}>
-        Admin Management
+        Admin Tools
       </button>
       <button value="general" onClick={(e) => setState(e.target.value)}>
         Hero Management
@@ -106,6 +106,10 @@ const AdminHome = (props) => {
             <button value="logs" onClick={(e) => setAdminState(e.target.value)}>
               {" "}
               View Logs{" "}
+            </button>
+            <button value="dcma" onClick={(e) => setAdminState(e.target.value)}>
+              {" "}
+              DCMA Management{" "}
             </button>
             {adminState == "users" ? (
               <>
@@ -163,6 +167,7 @@ const AdminHome = (props) => {
               <></>
             )}
             {adminState == "logs" ? <>logs</> : <></>}
+            {adminState == "dcma" ? <>DCMA</> : <></>}
           </>
         ) : (
           <></>
