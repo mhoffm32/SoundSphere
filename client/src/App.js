@@ -1,4 +1,3 @@
-import Header from "./components/Header";
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
@@ -54,21 +53,25 @@ function App() {
     setState("info");
   };
 
-  const token1 = () => {
-    console.log(token);
-  };
-
   return (
     <div>
       <div id="content">
-        <button onClick={token1}>token</button>
         {state != "login" ? (
           <div>
-            <button onClick={onLoginClick}>{loginText}</button>
+            <button
+              onClick={onLoginClick}
+              style={{
+                backgroundColor:
+                  state === "loggedin"
+                    ? "rgb(242, 126, 132)"
+                    : "rgb(129, 199, 146)",
+                fontWeight: state === "login" ? "bold" : "bold",
+              }}
+            >
+              {loginText}
+            </button>
             {current_user !== null && current_user.id !== 0 ? (
-              <>
-                Current User: {current_user.nName} User ID: {current_user.id}{" "}
-              </>
+              <>Welcome, {current_user.nName}</>
             ) : (
               <></>
             )}

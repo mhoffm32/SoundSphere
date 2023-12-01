@@ -19,6 +19,7 @@ const SavedLists = (props) => {
   const [changeValue, setChangeValue] = useState("");
   const [editWarning, setEditWarning] = useState("");
   const { token, setToken } = useAuth();
+  const [isConfirmVis, setConfirmVis] = useState(false);
 
   const user = props.user ? props.user : false;
 
@@ -295,7 +296,7 @@ const SavedLists = (props) => {
         <div>
           {heroLists.map((list, index) => (
             <div key={index} className="search-result">
-              <h3>
+              <h3 id="list-title">
                 <div
                   className="result-header"
                   onClick={() => toggleExpansion(index)}
@@ -304,7 +305,6 @@ const SavedLists = (props) => {
                   {list.ListName}
                   {expandedResults.includes(index) ? ` ▲` : " ▼"}
                 </div>
-                <button onClick={() => deleteList(list)}>Delete</button>
                 <button
                   onClick={() => {
                     setListEdit(index);
@@ -312,6 +312,18 @@ const SavedLists = (props) => {
                 >
                   {isEditing && editIndex == index ? "Cancel Edit" : "Edit"}
                 </button>
+                <div className="confim-delete">
+                  <button onClick={() => setConfirmVis(true)}>Delete</button>
+                  {isConfirmVis && (
+                    <div className="confirm">
+                      <p>Are you sure you want to delete this item?</p>
+                      <button onClick={() => deleteList(list)}>Yes</button>
+                      <button onClick={() => setConfirmVis(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </div>
               </h3>
 
               {isEditing && editIndex == index ? (

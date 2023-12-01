@@ -207,9 +207,11 @@ const HeroSearch = ({ choice }) => {
                       <br /> Powers: {result.powers.join(", ")}
                     </p>
                     <button
-                      onClick={() =>
-                        (window.location.href = `https://duckduckgo.com/${result.name}%20${result.Publisher}`)
-                      }
+                      onClick={() => {
+                        window.open(
+                          `https://duckduckgo.com/${result.name}%20${result.Publisher}`
+                        );
+                      }}
                     >
                       Search on DDG
                     </button>

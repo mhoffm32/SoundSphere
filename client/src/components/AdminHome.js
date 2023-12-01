@@ -6,7 +6,7 @@ import { useAuth } from "../AuthContext";
 const AdminHome = (props) => {
   const { user } = props;
   const [state, setState] = useState("general");
-  const [adminState, setAdminState] = useState("users");
+  const [adminState, setAdminState] = useState("");
   const [users_list, setUsersList] = useState([]);
   const [refresh, setRefresh] = useState("");
   const { token, setToken } = useAuth();
@@ -14,7 +14,6 @@ const AdminHome = (props) => {
   useEffect(() => {
     console.log("refresh called");
   }, []);
-
   useEffect(() => {
     console.log("users list", users_list);
   }, [users_list]);
@@ -105,24 +104,60 @@ const AdminHome = (props) => {
   return (
     <div>
       <h2>{state == "admin" ? <>Admin Tools</> : <>Hero Management</>}</h2>
-      <button value="admin" onClick={(e) => setState(e.target.value)}>
+      <button
+        value="admin"
+        style={{
+          backgroundColor: state === "admin" ? "rgb(153,80,153)" : "",
+          fontWeight: state === "admin" ? "bold" : "normal",
+        }}
+        onClick={(e) => setState(e.target.value)}
+      >
         Admin Tools
       </button>
-      <button value="general" onClick={(e) => setState(e.target.value)}>
+      <button
+        value="general"
+        style={{
+          backgroundColor: state === "general" ? "rgb(153,80,153)" : "",
+          fontWeight: state === "general" ? "bold" : "normal",
+        }}
+        onClick={(e) => setState(e.target.value)}
+      >
         Hero Management
       </button>
       <div>
         {state == "admin" ? (
           <>
-            <button value="refresh" onClick={getUsers}>
+            <button
+              value="users"
+              style={{
+                backgroundColor:
+                  adminState === "users" ? "rgb(20,204,204)" : "",
+                fontWeight: adminState === "users" ? "bold" : "normal",
+              }}
+              onClick={getUsers}
+            >
               {" "}
-              View Users{" "}
+              Manage Users{" "}
             </button>
-            <button value="logs" onClick={(e) => setAdminState(e.target.value)}>
+            <button
+              value="logs"
+              style={{
+                backgroundColor: adminState === "logs" ? "rgb(20,204,204)" : "",
+                fontWeight: adminState === "logs" ? "bold" : "normal",
+              }}
+              onClick={(e) => setAdminState(e.target.value)}
+            >
               {" "}
               View Logs{" "}
             </button>
-            <button value="dcma" onClick={(e) => setAdminState(e.target.value)}>
+            <button
+              value="dcma"
+              style={{
+                backgroundColor: adminState === "dcma" ? "rgb(20,204,204)" : "",
+                fontWeight: adminState === "dcma" ? "bold" : "normal",
+              }}
+              onClick={(e) => setAdminState(e.target.value)}
+            >
               {" "}
               DCMA Management{" "}
             </button>

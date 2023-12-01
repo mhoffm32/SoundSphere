@@ -14,6 +14,7 @@ const SignUp = ({ onSignup }) => {
   const [vText, setVText] = useState("");
   const [vCode, setVCode] = useState(0);
   const [vStatus, setvStatus] = useState("Waiting for Verification...");
+  const [warningText, setwText] = useState("");
 
   useEffect(() => {
     if (localstate) {
@@ -43,20 +44,21 @@ const SignUp = ({ onSignup }) => {
 
     const response = await fetch("/api/users/add-user", send);
     if (response.status === 409) {
-      alert("Account under " + email + " already exists.");
+      setwText("Account under " + email + " already exists.");
     } else if (response.status === 200) {
     } else {
-      alert("error: " + response);
+      setwText("error: " + response);
     }
     return response.json();
   };
 
   const handleSignup = async () => {
+    setwText("");
     // Validate login details (you can add your own validation logic here)
     if (email && password && password2 && nName) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        alert("invalid email format");
+        setwText("invalid email format");
       } else {
         if (password === password2) {
           const data = await addUser();
@@ -65,11 +67,11 @@ const SignUp = ({ onSignup }) => {
             setstate("verifying");
           }
         } else {
-          alert("Passwords dont match.");
+          setwText("Passwords dont match.");
         }
       }
     } else {
-      alert("Please enter email, first name, last name, password.");
+      setwText("Please enter email, first name, last name, password.");
     }
   };
 
@@ -89,7 +91,7 @@ const SignUp = ({ onSignup }) => {
         setstate("loggedin");
       } else {
         console.error("Verification failed:", data);
-        alert(data.message);
+        setwText(data.message);
       }
     } catch (error) {
       console.error("Error verifying email:", error.message);
@@ -98,62 +100,77 @@ const SignUp = ({ onSignup }) => {
 
   return (
     <div className="signup">
-      <span>
-        Email:{" "}
-        <input
-          type="text"
-          id="email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <h1>Hero World Signup</h1>
+      <div className="signup-input">
+        <span>
+          <div id="s">
+            Email:{" "}
+            <input
+              type="text"
+              id="email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div id="s">
+            Nickname:{" "}
+            <input
+              type="text"
+              id="nName"
+              onChange={(e) => setnName(e.target.value)}
+            />
+          </div>
+
+          <div id="s">
+            Password:{" "}
+            <input
+              type="text"
+              id="password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <div id="s">
+            Confirm Password:{" "}
+            <input
+              type="text"
+              id="password2"
+              onChange={(e) => setPassword2(e.target.value)}
+            />
+          </div>
+        </span>
         <br />
-        Nickname:{" "}
-        <input
-          type="text"
-          id="nName"
-          onChange={(e) => setnName(e.target.value)}
-        />
+        <button id="sbtn" onClick={handleSignup}>
+          Sign Up
+        </button>
+        {warningText != "" ? <p>{warningText}</p> : <></>}
         <br />
-        Password:{" "}
-        <input
-          type="text"
-          id="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br />
-        Confirm Password:{" "}
-        <input
-          type="text"
-          id="password2"
-          onChange={(e) => setPassword2(e.target.value)}
-        />
-      </span>
-      <button onClick={handleSignup}>Sign Up</button>
-      {verificationLink && (
-        <div>
-          {localstate == "verifying" ? (
-            <>
-              <a
-                href={verificationLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={verifyEmail}
-              >
-                Click here to verify your email
-              </a>
-              <p>Status: Awaiting Verification....</p>
-            </>
-          ) : (
-            <></>
-          )}
-          {localstate == "verified" ? (
-            <>
-              <p>{vText}</p>
-            </>
-          ) : (
-            <></>
-          )}
-        </div>
-      )}
+        {verificationLink && (
+          <div id="vText">
+            {localstate == "verifying" ? (
+              <>
+                <a
+                  href={verificationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={verifyEmail}
+                >
+                  Click here to verify your email
+                </a>
+                <p>Status: Awaiting Verification....</p>
+              </>
+            ) : (
+              <></>
+            )}
+            {localstate == "verified" ? (
+              <>
+                <p>{vText}</p>
+              </>
+            ) : (
+              <></>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -82,9 +82,82 @@ h4{
     bottom: 0;
 }
 
+.signup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.signup-input {
+    margin-top:50px;
+}
+
+
+  
+  
+
+#vtext{
+    margin-top: 10px;
+    padding: 10px;
+}
+  
+#s {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px; 
+}
+  
+#s label {
+    text-align: left;
+    flex: 1;
+}
+  
+#s input {
+    width: 200px; 
+}
+
+.login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.l-input {
+    margin-top:50px;
+}
+
+#ltext{
+    margin-top: 10px;
+    padding: 10px;
+}
+  
+#l {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px; 
+}
+  
+#l label {
+    text-align: left;
+    flex: 1;
+}
+  
+#l input {
+    width: 200px; 
+}
+
+.confirm-delete{
+    align-self: inline;
+}
+
+
+  
 
 #content {
     flex: 1;
-    /* Add styles for your main content container as needed */
 }
 

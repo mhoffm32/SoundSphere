@@ -9,6 +9,7 @@ const Login = ({ onLogin }) => {
   const [localstate, setstate] = useState("login");
   const [curr_user, setUser] = useState(new User(0, "", "", ""));
   const { token, setToken } = useAuth();
+  const [warningText, setWarning] = useState("");
 
   useEffect(() => {
     if (localstate) {
@@ -17,28 +18,27 @@ const Login = ({ onLogin }) => {
   }, [localstate]);
 
   const handleLog = async () => {
+    setWarning("");
     if (email && password) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!emailRegex.test(email)) {
-        alert("invalid email format");
+        setWarning("invalid email format");
       } else {
-        let res = await getUser();
-        let usr = res.user;
-        if (usr == 404) {
-          alert("Invalid Credentials");
-        } else if (usr == 500 || usr == null) {
-          alert("An error occured. Please try again.");
+        let data = await getUser();
+        let usr = data.user;
+        if (data.status !== 200) {
+          setWarning(data.message);
         } else {
           if (usr.disabled) {
-            alert(
+            setWarning(
               "Disabled Account. Please contact the site adminstarator for more details."
             );
           } else {
             let u = new User(usr.userID, usr.nName, usr.email, usr.password);
             u.admin = usr.admin;
             setUser(u);
-            setToken(res.token);
+            setToken(data.token);
             setstate("loggedin");
           }
         }
@@ -52,13 +52,7 @@ const Login = ({ onLogin }) => {
     try {
       const response = await fetch(`/api/users/get_user/${email}/${password}`);
       const data = await response.json();
-      if (response.status == 200) {
-        return data;
-      } else if (response.status == 404) {
-        return 404;
-      } else {
-        return 500;
-      }
+      return data;
     } catch (error) {
       console.error("Error occured:", error);
       return null; // or handle the error in a way that makes sense for your application
@@ -67,23 +61,30 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login">
-      <span>
-        Email:{" "}
-        <input
-          type="text"
-          id="email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <h1>Hero World Login</h1>
+      <div className="l-input">
+        <span>
+          <div id="l">
+            Email:{" "}
+            <input
+              type="text"
+              id="email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div id="l">
+            Password:{" "}
+            <input
+              type="text"
+              id="password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </span>
         <br />
-        Password:{" "}
-        <input
-          type="text"
-          id="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </span>
-
-      <button onClick={handleLog}>Login</button>
+        <button onClick={handleLog}>Login</button>
+      </div>
+      <p>{warningText}</p>
     </div>
   );
 };
