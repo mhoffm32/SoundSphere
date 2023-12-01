@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import UnauthHome from "./UnauthHome";
+import Dispute from "./Dispute";
 import { useAuth } from "../AuthContext";
 
 const AdminHome = (props) => {
@@ -8,7 +9,8 @@ const AdminHome = (props) => {
   const [state, setState] = useState("general");
   const [adminState, setAdminState] = useState("");
   const [users_list, setUsersList] = useState([]);
-  const [refresh, setRefresh] = useState("");
+  const [viewingP, setViewingP] = useState(0);
+
   const { token, setToken } = useAuth();
 
   useEffect(() => {
@@ -139,28 +141,35 @@ const AdminHome = (props) => {
               {" "}
               Manage Users{" "}
             </button>
-            <button
-              value="logs"
-              style={{
-                backgroundColor: adminState === "logs" ? "rgb(20,204,204)" : "",
-                fontWeight: adminState === "logs" ? "bold" : "normal",
-              }}
-              onClick={(e) => setAdminState(e.target.value)}
-            >
-              {" "}
-              View Logs{" "}
-            </button>
-            <button
-              value="dcma"
-              style={{
-                backgroundColor: adminState === "dcma" ? "rgb(20,204,204)" : "",
-                fontWeight: adminState === "dcma" ? "bold" : "normal",
-              }}
-              onClick={(e) => setAdminState(e.target.value)}
-            >
-              {" "}
-              DCMA Management{" "}
-            </button>
+            {user.id == 108 ? (
+              <>
+                <button
+                  value="policies"
+                  style={{
+                    backgroundColor:
+                      adminState === "policies" ? "rgb(20,204,204)" : "",
+                    fontWeight: adminState === "policies" ? "bold" : "normal",
+                  }}
+                  onClick={(e) => setAdminState(e.target.value)}
+                >
+                  Manage Policies{" "}
+                </button>
+                <button
+                  value="dcma"
+                  style={{
+                    backgroundColor:
+                      adminState === "dcma" ? "rgb(20,204,204)" : "",
+                    fontWeight: adminState === "dcma" ? "bold" : "normal",
+                  }}
+                  onClick={(e) => setAdminState(e.target.value)}
+                >
+                  {" "}
+                  DCMA Management{" "}
+                </button>{" "}
+              </>
+            ) : (
+              <></>
+            )}
             {adminState == "users" ? (
               <>
                 {users_list !== null && users_list !== undefined && (
@@ -216,8 +225,53 @@ const AdminHome = (props) => {
             ) : (
               <></>
             )}
-            {adminState == "logs" ? <>logs</> : <></>}
-            {adminState == "dcma" ? <>DCMA</> : <></>}
+            {adminState == "policies" ? (
+              <>
+                <h2>Privacy Policy</h2>
+                <input type="text"></input>
+                <button id="privacyPolicy"> Submit Edits </button>
+
+                <h2>Use Policy</h2>
+                <input type="text"></input>
+                <button id="usePolicy">Submit Edits</button>
+
+                <h2>DCMA Policy</h2>
+                <input type="text"></input>
+                <button id="dcmaPolicy">Submit Edits</button>
+              </>
+            ) : (
+              <></>
+            )}
+            <br />
+            {adminState == "dcma" ? (
+              <>
+                <br />
+                <h2>DCMA Management </h2>
+                <button
+                  onClick={() => {
+                    setViewingP(!viewingP);
+                  }}
+                >
+                  {viewingP ? <>Close</> : <> View Take Down Procedure</>}
+                </button>
+                {viewingP ? (
+                  <>
+                    <p>
+                      1. A document that describes the workflow for implementing
+                      DMCA notice & takedown policy is provided for the SM. 2.
+                      This document contains the instructions for using the
+                      tools provided for implementing the DMCA notice & takedown
+                      policy.{" "}
+                    </p>
+                  </>
+                ) : (
+                  <></>
+                )}
+                <Dispute />
+              </>
+            ) : (
+              <></>
+            )}
           </>
         ) : (
           <></>

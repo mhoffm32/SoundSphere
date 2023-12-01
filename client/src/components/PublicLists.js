@@ -139,202 +139,232 @@ const PublicLists = (props) => {
         <div>
           {heroLists.map((list, index) => (
             <div key={index} className="search-result">
-              <div
-                className="result-header"
-                onClick={() => toggleExpansion(index)}
-              >
-                <h3>
-                  {" "}
-                  {list.ListName} | Created By: {list.creator} | Heroes:{" "}
-                  {list.heroes.length} | Rating:{" "}
-                  {list.rating ? <>{list.rating}</> : <>N/A</>}{" "}
-                  {expandedResults.includes(index) ? ` ▲` : " ▼"}
-                </h3>
-              </div>
-              {expandedResults.includes(index) && (
-                <div className="result-details">
-                  <p>Description: {list.description} </p>
-                  {list.heroes.map((hero, heroIndex) => (
-                    <div key={heroIndex}>
-                      <div key={heroIndex} className="search-result">
-                        <div
-                          className="result-header"
-                          onClick={() =>
-                            toggleExpansionHeroes(index, heroIndex)
-                          }
-                        >
-                          <p id="hero-title">
-                            {hero.name}
-                            {expandedHeroes.includes(`${index}-${heroIndex}`)
-                              ? ` ▲`
-                              : " ▼"}
-                          </p>
-                        </div>
-                        {expandedHeroes.includes(`${index}-${heroIndex}`) && (
-                          <div className="hero-details">
-                            <p className="hero-detail-item">
-                              <span className="detail-label">Publisher:</span>{" "}
-                              {hero.Publisher}
-                              <br />
-                              <span className="detail-label">Gender:</span>{" "}
-                              {hero.Gender}
-                              <br />
-                              <span className="detail-label">Race:</span>{" "}
-                              {hero.Race}
-                              <br />
-                              <span className="detail-label">
-                                Alignment:
-                              </span>{" "}
-                              {hero.Alignment}
-                              <br />
-                              <span className="detail-label">
-                                Hair Color:
-                              </span>{" "}
-                              {hero["Hair color"]}
-                              <br />
-                              <span className="detail-label">
-                                Skin Color:
-                              </span>{" "}
-                              {hero["Skin color"]}
-                              <br />
-                              <span className="detail-label">
-                                Eye Color:
-                              </span>{" "}
-                              {hero["Eye color"]}
-                              <br />
-                              <span className="detail-label">Height:</span>{" "}
-                              {hero["Height"]}
-                              <br />
-                              <span className="detail-label">Weight:</span>{" "}
-                              {hero.Weight}
-                              <br />
-                              <span className="detail-label">Powers:</span>{" "}
-                              {hero.powers.join(", ")}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  {user && (
-                    <div>
-                      <div
-                        className="result-header"
-                        onClick={() => toggleReviews(index)}
-                      >
-                        <h4>
-                          Reviews
-                          {reviewsExpanded === index ? " -" : " +"}
-                        </h4>
-                      </div>
-                      {reviewsExpanded === index && (
-                        <div className="reviews">
-                          {list.reviews == null ? (
-                            <>No reviews to display</>
-                          ) : (
-                            <>
-                              {list.reviews.map((review, index) => (
-                                <div key={index} className="reviews">
-                                  {!review.hidden && !user.admin ? (
-                                    <>
-                                      <div className="review-item">
-                                        <span className="rev-label">Name:</span>{" "}
-                                        {review.user}
-                                      </div>
-                                      <div className="review-item">
-                                        <span className="rev-label">
-                                          Rating:
-                                        </span>{" "}
-                                        {review.rating}/5
-                                      </div>
-                                      <div className="review-item">
-                                        <span className="rev-label">
-                                          Comment:
-                                        </span>{" "}
-                                        {review.comment}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <></>
-                                  )}
-                                  {user.admin ? (
-                                    <>
-                                      <div className="review-item">
-                                        <span className="rev-label">Name:</span>{" "}
-                                        {review.user}
-                                      </div>
-                                      <div className="review-item">
-                                        <span className="rev-label">
-                                          Rating:
-                                        </span>{" "}
-                                        {review.rating}/5
-                                      </div>
-                                      <div className="review-item">
-                                        <span className="rev-label">
-                                          Comment:
-                                        </span>{" "}
-                                        {review.comment}
-                                      </div>
-                                      <button
-                                        onClick={() =>
-                                          manageReview(list, review)
-                                        }
-                                      >
-                                        {review.hidden ? (
-                                          <>Unhide review</>
-                                        ) : (
-                                          <>Hide Review</>
-                                        )}
-                                      </button>
-                                    </>
-                                  ) : (
-                                    <></>
-                                  )}
-                                </div>
-                              ))}
-                            </>
-                          )}
-                          <h4 id="your-rating">Leave a Review:</h4>
-                          <div className="review-item">
-                            <span className="rev-label">Name:</span>{" "}
-                            {user.nName}
-                          </div>
-                          <div className="review-item">
-                            <span className="rev-label"> Rating:</span>
-                            <input
-                              id="rev_input"
-                              type="range"
-                              min="0"
-                              max="5"
-                              step="any"
-                              defaultValue="2.5"
-                              onChange={(e) => {
-                                setRating(Number(e.target.value).toFixed(1));
-                              }}
-                            />
-                            {currRating}
-                          </div>
-                          <div className="review-item">
-                            <span className="rev-label"> Comment:</span>
-                            <input
-                              type="text"
-                              placeholder="optional"
-                              onChange={(e) => {
-                                setComment(e.target.value);
-                              }}
-                            />
-                            <button
-                              onClick={() => postReview(list.id, list.ListName)}
+              {index <= 10 ? (
+                <>
+                  <div
+                    className="result-header"
+                    onClick={() => toggleExpansion(index)}
+                  >
+                    <h3>
+                      {" "}
+                      {list.ListName} | Created By: {list.creator} | Heroes:{" "}
+                      {list.heroes.length} | Rating:{" "}
+                      {list.rating ? <>{list.rating}</> : <>N/A</>}{" "}
+                      {expandedResults.includes(index) ? ` ▲` : " ▼"}
+                    </h3>
+                  </div>
+                  {expandedResults.includes(index) && (
+                    <div className="result-details">
+                      <p>Description: {list.description} </p>
+                      {list.heroes.map((hero, heroIndex) => (
+                        <div key={heroIndex}>
+                          <div key={heroIndex} className="search-result">
+                            <div
+                              className="result-header"
+                              onClick={() =>
+                                toggleExpansionHeroes(index, heroIndex)
+                              }
                             >
-                              Post
-                            </button>
+                              <p id="hero-title">
+                                {hero.name}
+                                {expandedHeroes.includes(
+                                  `${index}-${heroIndex}`
+                                )
+                                  ? ` ▲`
+                                  : " ▼"}
+                              </p>
+                            </div>
+                            {expandedHeroes.includes(
+                              `${index}-${heroIndex}`
+                            ) && (
+                              <div className="hero-details">
+                                <p className="hero-detail-item">
+                                  <span className="detail-label">
+                                    Publisher:
+                                  </span>{" "}
+                                  {hero.Publisher}
+                                  <br />
+                                  <span className="detail-label">
+                                    Gender:
+                                  </span>{" "}
+                                  {hero.Gender}
+                                  <br />
+                                  <span className="detail-label">
+                                    Race:
+                                  </span>{" "}
+                                  {hero.Race}
+                                  <br />
+                                  <span className="detail-label">
+                                    Alignment:
+                                  </span>{" "}
+                                  {hero.Alignment}
+                                  <br />
+                                  <span className="detail-label">
+                                    Hair Color:
+                                  </span>{" "}
+                                  {hero["Hair color"]}
+                                  <br />
+                                  <span className="detail-label">
+                                    Skin Color:
+                                  </span>{" "}
+                                  {hero["Skin color"]}
+                                  <br />
+                                  <span className="detail-label">
+                                    Eye Color:
+                                  </span>{" "}
+                                  {hero["Eye color"]}
+                                  <br />
+                                  <span className="detail-label">
+                                    Height:
+                                  </span>{" "}
+                                  {hero["Height"]}
+                                  <br />
+                                  <span className="detail-label">
+                                    Weight:
+                                  </span>{" "}
+                                  {hero.Weight}
+                                  <br />
+                                  <span className="detail-label">
+                                    Powers:
+                                  </span>{" "}
+                                  {hero.powers.join(", ")}
+                                </p>
+                              </div>
+                            )}
                           </div>
+                        </div>
+                      ))}
+
+                      {user && (
+                        <div>
+                          <div
+                            className="result-header"
+                            onClick={() => toggleReviews(index)}
+                          >
+                            <h4>
+                              Reviews
+                              {reviewsExpanded === index ? " -" : " +"}
+                            </h4>
+                          </div>
+                          {reviewsExpanded === index && (
+                            <div className="reviews">
+                              {list.reviews == null ? (
+                                <>No reviews to display</>
+                              ) : (
+                                <>
+                                  {list.reviews.map((review, index) => (
+                                    <div key={index} className="reviews">
+                                      {!review.hidden && !user.admin ? (
+                                        <>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Name:
+                                            </span>{" "}
+                                            {review.user}
+                                          </div>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Rating:
+                                            </span>{" "}
+                                            {review.rating}/5
+                                          </div>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Comment:
+                                            </span>{" "}
+                                            {review.comment}
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <></>
+                                      )}
+                                      {user.admin ? (
+                                        <>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Name:
+                                            </span>{" "}
+                                            {review.user}
+                                          </div>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Rating:
+                                            </span>{" "}
+                                            {review.rating}/5
+                                          </div>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Comment:
+                                            </span>{" "}
+                                            {review.comment}
+                                          </div>
+                                          <button
+                                            onClick={() =>
+                                              manageReview(list, review)
+                                            }
+                                          >
+                                            {review.hidden ? (
+                                              <>Unhide review</>
+                                            ) : (
+                                              <>Hide Review</>
+                                            )}
+                                          </button>
+                                        </>
+                                      ) : (
+                                        <></>
+                                      )}
+                                    </div>
+                                  ))}
+                                </>
+                              )}
+                              <h4 id="your-rating">Leave a Review:</h4>
+                              <div className="review-item">
+                                <span className="rev-label">Name:</span>{" "}
+                                {user.nName}
+                              </div>
+                              <div className="review-item">
+                                <span className="rev-label"> Rating:</span>
+                                <input
+                                  id="rev_input"
+                                  type="range"
+                                  min="0"
+                                  max="5"
+                                  step="any"
+                                  defaultValue="2.5"
+                                  onChange={(e) => {
+                                    setRating(
+                                      Number(e.target.value).toFixed(1)
+                                    );
+                                  }}
+                                />
+                                {currRating}
+                              </div>
+                              <div className="review-item">
+                                <span className="rev-label"> Comment:</span>
+                                <input
+                                  type="text"
+                                  placeholder="optional"
+                                  onChange={(e) => {
+                                    setComment(e.target.value);
+                                  }}
+                                />
+                                <button
+                                  onClick={() =>
+                                    postReview(list.id, list.ListName)
+                                  }
+                                >
+                                  Post
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   )}
-                </div>
+                </>
+              ) : (
+                <></>
               )}
             </div>
           ))}
