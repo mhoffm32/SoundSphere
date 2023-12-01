@@ -1,10 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import UnauthHome from "./UnauthHome";
-/*
-ADMIN FEATURES 
-- 
-*/
+import { useAuth } from "../AuthContext";
 
 const AdminHome = (props) => {
   const { user } = props;
@@ -12,6 +9,7 @@ const AdminHome = (props) => {
   const [adminState, setAdminState] = useState("users");
   const [users_list, setUsersList] = useState([]);
   const [refresh, setRefresh] = useState("");
+  const { token, setToken } = useAuth();
 
   useEffect(() => {
     console.log("refresh called");
@@ -24,7 +22,12 @@ const AdminHome = (props) => {
   async function getUsers() {
     setAdminState("users");
     try {
-      const response = await fetch(`/api/users/users_list`);
+      const response = await fetch(`/api/users/users_list`, {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      });
       const data = await response.json();
       setUsersList(data);
 
@@ -48,7 +51,13 @@ const AdminHome = (props) => {
   const adminStatus = async (id, status) => {
     try {
       const response = await fetch(
-        `/api/users/admin-user/${id}/${Number(!status)}`
+        `/api/users/admin-user/${id}/${Number(!status)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: token,
+          },
+        }
       );
 
       if (!response.ok) {
@@ -67,7 +76,13 @@ const AdminHome = (props) => {
   const accountStatus = async (id, status) => {
     try {
       const response = await fetch(
-        `/api/users/disable-user/${id}/${Number(!status)}`
+        `/api/users/disable-user/${id}/${Number(!status)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: token,
+          },
+        }
       );
 
       if (!response.ok) {
@@ -119,7 +134,7 @@ const AdminHome = (props) => {
                       <li key={user.userID}>
                         {" "}
                         ID:{user.userID}, Nickname: {user.nName}, Email:{" "}
-                        {user.email}, Password: {user.password}
+                        {user.email}
                         <div id="user-btns">
                           {user.admin ? (
                             <button

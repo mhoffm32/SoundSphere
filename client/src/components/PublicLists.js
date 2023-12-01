@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { useAuth } from "../AuthContext";
 
 const PublicLists = (props) => {
   const [expandedResults, setExpandedResults] = useState([]);
@@ -8,6 +9,7 @@ const PublicLists = (props) => {
   const [reviewsExpanded, setReviewsExpanded] = useState([]);
   const [currRating, setRating] = useState(0);
   const [currComment, setComment] = useState("");
+  const { token, setToken } = useAuth();
 
   const user = props.user ? props.user : false;
 
@@ -62,6 +64,7 @@ const PublicLists = (props) => {
   };
 
   const postReview = async (listID, listName) => {
+    console.log(token);
     try {
       const newReview = {
         user: user.nName,
@@ -74,6 +77,7 @@ const PublicLists = (props) => {
       const send = {
         method: "POST",
         headers: {
+          Authorization: token,
           "Content-Type": "application/json", // Specify the content type as JSON
         },
         body: JSON.stringify(newReview), // Convert the object to a JSON string
@@ -105,6 +109,7 @@ const PublicLists = (props) => {
       const send = {
         method: "POST",
         headers: {
+          Authorization: token,
           "Content-Type": "application/json", // Specify the content type as JSON
         },
         body: JSON.stringify(info), // Convert the object to a JSON string
@@ -141,7 +146,8 @@ const PublicLists = (props) => {
                 <h3>
                   {" "}
                   {list.ListName} | Created By: {list.creator} | Heroes:{" "}
-                  {list.heroes.length} | Rating: {list.rating}{" "}
+                  {list.heroes.length} | Rating:{" "}
+                  {list.rating ? <>{list.rating}</> : <>N/A</>}{" "}
                   {expandedResults.includes(index) ? ` ▲` : " ▼"}
                 </h3>
               </div>

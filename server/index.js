@@ -9,6 +9,10 @@ const path = require("path");
 const router = express.Router();
 const router2 = express.Router();
 const router3 = express.Router();
+const jwt = require("jsonwebtoken");
+
+const userKey = "userKey";
+const adminKey = "adminKey";
 
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
@@ -63,7 +67,155 @@ app.use((req, res, next) => {
   next();
 });
 
-router3.post("/new-list", (req, res) => {
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized: No token provided" });
+  }
+
+  jwt.verify(token, userKey, (userErr, user) => {
+    if (!userErr) {
+      req.user = user;
+      console.log("User token verified");
+      return next();
+    }
+    jwt.verify(token, adminKey, (adminErr, admin) => {
+      if (adminErr) {
+        console.error("Error verifying token:", adminErr);
+        return res.status(403).json({ error: "Forbidden: Invalid token" });
+      }
+      console.log("Admin token verified");
+      next();
+    });
+  });
+}
+
+function authenticateAdminToken(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized: No token provided" });
+  }
+
+  jwt.verify(token, adminKey, (err, user) => {
+    if (err) {
+      console.error("Error verifying token:", err); // Log the error for debugging
+      return res.status(403).json({ error: "Forbidden: Invalid token" });
+    }
+    console.log("token good");
+    next();
+  });
+}
+
+router3.get("/saved-lists/:id", authenticateToken, (req, res) => {
+  const sql = "SELECT * FROM Hero_Lists WHERE UserID = ?";
+  let userID = req.params.id;
+  userID = sanitize(userID);
+  let lists = [];
+
+  try {
+    connection.query(sql, [userID], (error, results) => {
+      if (error) {
+        res.status(501).json({ error: "An SQL error occurred" });
+      } else {
+        for (let list of results) {
+          let heroes_info = [];
+          let ids = JSON.parse(list.HeroIDs);
+
+          let lratings = [];
+
+          if (list.ratings == null) {
+            lratings = [];
+          } else {
+            lratings = JSON.parse(list.Ratings);
+          }
+          let listRating = 0;
+
+          if (list.ratings) {
+            for (let rating of lratings) {
+              listRating = listRating + rating["rating"];
+            }
+            listRating = (listRating / lratings.length).toFixed(2);
+          } else {
+            listRating = "N/A";
+          }
+
+          for (let curr_id of ids) {
+            curr_id = Number(curr_id);
+            let hero_obj = hero_info.find((e) => e.id === curr_id);
+            heroes_info.push(hero_obj);
+          }
+
+          lists.push({
+            id: list.UserID,
+            heroes: heroes_info,
+            ListName: list.ListName,
+            creator: list.Nickname,
+            lastEdit: list.LastEdit,
+            rating: listRating,
+            reviews: lratings,
+            description: list.Description,
+            public: list.Public,
+          });
+        }
+
+        lists = lists.sort(
+          (a, b) => b.lastEdit.getTime() - a.lastEdit.getTime()
+        );
+        lists = lists.slice(0, 10);
+        res.status(200).json(lists);
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
+router2.get("/get_user/:email/:password", (req, res) => {
+  const userEmail = sanitize(req.params.email.trim());
+  const userPass = sanitize(req.params.password.trim());
+
+  const sql = "SELECT * FROM Users WHERE email = ?";
+  const values = [userEmail];
+
+  try {
+    connection.query(sql, values, async (error, results) => {
+      if (error) {
+        res.status(501).json({ error: "An sql error occurred" });
+      } else {
+        if (results.length > 0) {
+          const hashedPassword = results[0].password;
+
+          const match = await bcrypt.compare(userPass, hashedPassword);
+
+          if (match) {
+            let token = jwt.sign({ userId: results[0].userID }, userKey, {
+              expiresIn: "1h",
+            });
+            console.log("results[0].admin", results[0].admin);
+
+            if (results[0].admin) {
+              token = jwt.sign({ userId: results[0].userID }, adminKey, {
+                expiresIn: "1h",
+              });
+            }
+
+            res.status(200).json({ user: results[0], token: token });
+          } else {
+            res.status(404).json({ message: "Invalid Credentials" });
+          }
+        } else {
+          res.status(404).json({ message: "Invalid Credentials" });
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "A server-side error occurred" });
+  }
+});
+
+router3.post("/new-list", authenticateToken, (req, res) => {
   const newList = req.body;
   const sql =
     "INSERT INTO Hero_Lists(UserID, ListName, HeroIDs, Nickname, LastEdit, Description, Ratings, Public) VALUES (?,?,?,?,?,?,?,?)";
@@ -110,47 +262,51 @@ router3.get("/delete-list/:id/:listName", (req, res) => {
   }
 });
 
-router3.get("/edit-list/:id/:listName/:field/:value", (req, res) => {
-  const id = Number(sanitize(req.params.id));
-  const lName = sanitize(req.params.listName);
-  let field = sanitize(req.params.field);
-  let value = sanitize(req.params.value);
+router3.get(
+  "/edit-list/:id/:listName/:field/:value",
+  authenticateToken,
+  (req, res) => {
+    const id = Number(sanitize(req.params.id));
+    const lName = sanitize(req.params.listName);
+    let field = sanitize(req.params.field);
+    let value = sanitize(req.params.value);
 
-  if (field === "public") {
-    value = Number(value);
-  } else if (field === "heroes") {
-    field = "HeroIDs";
-    value = JSON.stringify(value);
-  }
+    if (field === "public") {
+      value = Number(value);
+    } else if (field === "heroes") {
+      field = "HeroIDs";
+      value = JSON.stringify(value);
+    }
 
-  const sql = `UPDATE Hero_Lists SET ${field} = ? WHERE UserID = ? AND ListName = ?`;
-  const values = [value, id, lName];
+    const sql = `UPDATE Hero_Lists SET ${field} = ? WHERE UserID = ? AND ListName = ?`;
+    const values = [value, id, lName];
 
-  try {
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        res.status(501).json({ message: error });
-      } else {
-        try {
-          const sql2 =
-            "UPDATE Hero_Lists SET LastEdit = ? WHERE UserID = ? AND ListName = ?";
-          const value = [getCurrentDateTime(), id, lName];
-          connection.query(sql2, value, (error, results) => {
-            if (error) {
-              res.status(501).json({ message: error });
-            } else {
-              res.status(200).json({ message: "successfully updated" });
-            }
-          });
-        } catch (error) {
-          res.status(500).json({ error: "An server side error occurred " });
+    try {
+      connection.query(sql, values, (error, results) => {
+        if (error) {
+          res.status(501).json({ message: error });
+        } else {
+          try {
+            const sql2 =
+              "UPDATE Hero_Lists SET LastEdit = ? WHERE UserID = ? AND ListName = ?";
+            const value = [getCurrentDateTime(), id, lName];
+            connection.query(sql2, value, (error, results) => {
+              if (error) {
+                res.status(501).json({ message: error });
+              } else {
+                res.status(200).json({ message: "successfully updated" });
+              }
+            });
+          } catch (error) {
+            res.status(500).json({ error: "An server side error occurred " });
+          }
         }
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: "An server side error occurred " });
+      });
+    } catch (error) {
+      res.status(500).json({ error: "An server side error occurred " });
+    }
   }
-});
+);
 
 function getCurrentDateTime() {
   const now = new Date();
@@ -165,7 +321,7 @@ function getCurrentDateTime() {
   return dt;
 }
 
-router3.post("/add-review", (req, res) => {
+router3.post("/add-review", authenticateToken, (req, res) => {
   const newReview = req.body;
   const sql =
     "SELECT Ratings From Hero_Lists WHERE UserID = ? AND listName = ?";
@@ -219,7 +375,7 @@ router3.post("/add-review", (req, res) => {
   }
 });
 
-router3.post("/manage-review", (req, res) => {
+router3.post("/manage-review", authenticateAdminToken, (req, res) => {
   const listDetails = req.body.list;
   const revDetails = req.body.review;
 
@@ -325,68 +481,6 @@ router3.get("/public-lists", (req, res) => {
   }
 });
 
-router3.get("/saved-lists/:id", (req, res) => {
-  const sql = "SELECT * FROM Hero_Lists WHERE UserID = ?";
-  let userID = req.params.id;
-  userID = sanitize(userID);
-  let lists = [];
-
-  try {
-    connection.query(sql, [userID], (error, results) => {
-      if (error) {
-        res.status(501).json({ error: "An SQL error occurred" });
-      } else {
-        for (let list of results) {
-          let heroes_info = [];
-          let ids = JSON.parse(list.HeroIDs);
-
-          if (list.ratings == null) {
-            let lratings = [];
-          } else {
-            let lratings = JSON.parse(list.Ratings);
-          }
-          let listRating = 0;
-
-          if (list.ratings) {
-            for (let rating of ratings) {
-              listRating = listRating + rating["rating"];
-            }
-            listRating = (listRating / ratings.length).toFixed(2);
-          } else {
-            listRating = "N/A";
-          }
-
-          for (let curr_id of ids) {
-            curr_id = Number(curr_id);
-            let hero_obj = hero_info.find((e) => e.id === curr_id);
-            heroes_info.push(hero_obj);
-          }
-
-          lists.push({
-            id: list.UserID,
-            heroes: heroes_info,
-            ListName: list.ListName,
-            creator: list.Nickname,
-            lastEdit: list.LastEdit,
-            rating: listRating,
-            reviews: lRatings,
-            description: list.Description,
-            public: list.Public,
-          });
-        }
-
-        lists = lists.sort(
-          (a, b) => b.lastEdit.getTime() - a.lastEdit.getTime()
-        );
-        lists = lists.slice(0, 10);
-        res.status(200).json(lists);
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: "An server side error occurred " });
-  }
-});
-
 //default sends all info data
 router.get("/", (req, res) => {
   if (hero_info) {
@@ -395,59 +489,6 @@ router.get("/", (req, res) => {
     res.status(500).send("JSON data for info is not available");
   }
 });
-
-/*
-app.get(`/verify-email/:token/:code`, (req, res) => {
-  let token = decodeURIComponent(req.params.token);
-  token = token.split("/");
-  token = token[token.length - 1];
-  let code = Number(req.params.code);
-
-  const userToVerify = unverifiedUsers.find(
-    (u) => u.token === token && u.code === code
-  );
-
-  if (userToVerify) {
-    const { nName, email, password } = userToVerify.user;
-
-    // Generate a salt and hash the password
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(password, salt, (err, hash) => {
-        if (err) {
-          res.status(500).json({ error: "Error hashing the password" });
-        } else {
-          const sql =
-            "INSERT INTO Users(nName, email, password) VALUES (?,?,?)";
-          const values = [nName, email, hash];
-
-          try {
-            connection.query(sql, values, (error, results) => {
-              if (error) {
-                res.status(409).json({ error: error.message });
-              } else {
-                userToVerify.user.userID = results.insertId;
-                res
-                  .status(200)
-                  .json(`User with email ${email} verified successfully!`);
-              }
-            });
-          } catch (error) {
-            res.status(500).json({
-              error: "An error occurred while appending data to the file",
-            });
-          }
-        }
-      });
-    });
-  } else {
-    res.status(404).json({
-      message: `Invalid verification token: ${token}, Code: ${code}`,
-      users: unverifiedUsers,
-    });
-  }
-});*/
-
-// Assuming unverifiedUsers is a global variable
 
 app.get(`/verify-email/:token/:code`, (req, res) => {
   let token = decodeURIComponent(req.params.token);
@@ -565,112 +606,7 @@ router2.post("/add-user", (req, res) => {
   });
 });
 
-/*
-router2.post("/add-user", (req, res) => {
-  const newUser = req.body;
-
-  // Generate a unique verification token (mocked using user information)
-  const verificationToken = crypto
-    .createHash("sha256")
-    .update(newUser.email + newUser.nName + newUser.password)
-    .digest("hex");
-
-  const randomCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
-
-  // Store user information in memory
-  unverifiedUsers.push({
-    user: newUser,
-    token: verificationToken,
-    verified: false,
-    code: randomCode,
-  });
-
-  // Display the verification link to the user (mocked email)
-  const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}/${randomCode}`;
-
-  // Checking if user exists already
-  const sql = "SELECT * FROM Users WHERE email = ?";
-  const values = [newUser.email];
-
-  try {
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        if (error.errno === 1062) {
-          res.status(500).json({ error: error.message });
-        }
-      } else {
-        if (results.length) {
-          res.status(409).json({ error: "User already exists" });
-        } else {
-          res.status(200).json({
-            message: `Awaiting Verification`,
-            link: verificationLink,
-            status: 200,
-          });
-        }
-      }
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while appending data to the file" });
-  }
-});*/
-
-/*
-router2.post("/add-user", (req, res) => {
-  const newUser = req.body;
-
-  // Generate a unique verification token (mocked using user information)
-  const verificationToken = crypto
-    .createHash("sha256")
-    .update(newUser.email + newUser.nName + newUser.password)
-    .digest("hex");
-
-  const randomCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
-
-  // Store user information in memory
-
-  unverifiedUsers.push({
-    user: newUser,
-    token: verificationToken,
-    verified: false,
-    code: randomCode,
-  });
-
-  // Display the verification link to the user (mocked email)
-  const verificationLink = `http://${host}:${port}/verify-email/${verificationToken}`;
-
-  //checking if user exists already
-  const sql = "SELECT * FROM Users WHERE email = ?";
-  const values = [newUser.email];
-
-  try {
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        if (error.errno === 1062) {
-          res.status(500).json({ error: error.message });
-        }
-      } else {
-        if (results.length) {
-          res.status(409).json({ error: "user already exists" });
-        } else {
-          res.status(200).json({
-            message: `Account created.`,
-            link: verificationLink,
-            status: 200,
-          });
-        }
-      }
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while appending data to the file" });
-  }
-});*/
-
-router2.get("/users_list", (req, res) => {
+router2.get("/users_list", authenticateAdminToken, (req, res) => {
   const sql = "SELECT * FROM Users";
 
   try {
@@ -690,64 +626,7 @@ router2.get("/users_list", (req, res) => {
   }
 });
 
-router2.get("/get_user/:email/:password", (req, res) => {
-  const userEmail = sanitize(req.params.email.trim());
-  const userPass = sanitize(req.params.password.trim());
-
-  const sql = "SELECT * FROM Users WHERE email = ?";
-  const values = [userEmail];
-
-  try {
-    connection.query(sql, values, async (error, results) => {
-      if (error) {
-        res.status(501).json({ error: "An sql error occurred" });
-      } else {
-        if (results.length > 0) {
-          const hashedPassword = results[0].password;
-
-          const match = await bcrypt.compare(userPass, hashedPassword);
-
-          if (match) {
-            res.status(200).json({ user: results[0] });
-          } else {
-            res.status(404).json({ message: "Invalid Credentials" });
-          }
-        } else {
-          res.status(404).json({ message: "Invalid Credentials" });
-        }
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: "A server-side error occurred" });
-  }
-});
-
-/*
-router2.get("/get_user/:email/:password", (req, res) => {
-  const userEmail = sanitize(req.params.email.trim());
-  const userPass = sanitize(req.params.password.trim());
-
-  const sql = "SELECT * FROM Users WHERE email = ? AND password = ?";
-  const values = [userEmail, userPass];
-
-  try {
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        res.status(501).json({ error: "An sql error occurred" });
-      } else {
-        if (results.length > 0) {
-          res.status(200).json({ user: results[0] });
-        } else {
-          res.status(404).json({ message: "Invalid Credentials" });
-        }
-        //res.status(200).json({message: 'User added successfully',userID: results.insertId, status: 200})
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: "An server side error occurred " });
-  }
-});*/
-router2.get("/disable-user/:id/:status", (req, res) => {
+router2.get("/disable-user/:id/:status", authenticateAdminToken, (req, res) => {
   let disabled = sanitize(req.params.status.trim());
   let userid = sanitize(req.params.id.trim());
 
@@ -771,7 +650,7 @@ router2.get("/disable-user/:id/:status", (req, res) => {
   }
 });
 
-router2.get("/admin-user/:id/:status", (req, res) => {
+router2.get("/admin-user/:id/:status", authenticateAdminToken, (req, res) => {
   let userid = sanitize(req.params.id.trim());
   let admin = sanitize(req.params.status.trim());
 
@@ -819,37 +698,6 @@ router.post("/deleteList", (req, res) => {
     }
   } catch (error) {
     console.error("Error appending data to the JSON file:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while appending data to the file" });
-  }
-});
-
-router.post("/newList", (req, res) => {
-  const newList = req.body;
-
-  let heroIDs = JSON.stringify(newList.heroIDs);
-
-  const sql =
-    "INSERT INTO Hero_Lists(UserID, ListName, HeroIDs) VALUES (?,?,?)";
-
-  const values = [newList.userID, newList.listName, heroIDs];
-
-  try {
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        if (error.errno === 1062) {
-          res.status(409).json({
-            error: "List named " + newList.listName + " already exists.",
-          });
-        }
-      } else {
-        res
-          .status(200)
-          .json({ message: "List Added successfully", status: 200 });
-      }
-    });
-  } catch (error) {
     res
       .status(500)
       .json({ error: "An error occurred while appending data to the file" });

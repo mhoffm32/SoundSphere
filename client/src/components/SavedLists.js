@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import UnauthHome from "./UnauthHome";
+import { useAuth } from "../AuthContext";
 
 const SavedLists = (props) => {
   const [expandedResults, setExpandedResults] = useState([]);
@@ -17,6 +18,7 @@ const SavedLists = (props) => {
   const [field, setField] = useState("ListName");
   const [changeValue, setChangeValue] = useState("");
   const [editWarning, setEditWarning] = useState("");
+  const { token, setToken } = useAuth();
 
   const user = props.user ? props.user : false;
 
@@ -59,7 +61,13 @@ const SavedLists = (props) => {
 
   const getLists = async () => {
     try {
-      const response = await fetch(`/api/lists/saved-lists/${user.id}`);
+      const response = await fetch(`/api/lists/saved-lists/${user.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      });
+      //const response = await fetch(`/api/lists/saved-lists/${user.id}`);
       const lis = await response.json();
 
       if (!response.ok) {
@@ -120,12 +128,14 @@ const SavedLists = (props) => {
       const send = {
         method: "POST",
         headers: {
+          Authorization: token,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newList),
       };
 
       const response = await fetch("/api/lists/new-list", send);
+
       const res = await response.json();
 
       if (!response.ok) {
@@ -145,7 +155,13 @@ const SavedLists = (props) => {
 
   const deleteList = async (list) => {
     const response = await fetch(
-      `/api/lists/delete-list/${user.id}/${list.ListName}`
+      `/api/lists/delete-list/${user.id}/${list.ListName}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      }
     );
 
     const res = await response.json();
@@ -196,8 +212,15 @@ const SavedLists = (props) => {
       }
     }
     const response = await fetch(
-      `/api/lists/edit-list/${id}/${name}/${field}/${changeValue}`
+      `/api/lists/edit-list/${id}/${name}/${field}/${changeValue}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      }
     );
+
     const res = await response.json();
 
     try {
@@ -207,7 +230,7 @@ const SavedLists = (props) => {
         );
         console.log("res", res);
       } else {
-        console.log("all good");
+        setEdit(0);
         console.log(res);
         getLists();
       }

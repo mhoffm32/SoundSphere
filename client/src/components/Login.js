@@ -1,12 +1,14 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import User from "../User.js";
+import { useAuth } from "../AuthContext";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [localstate, setstate] = useState("login");
   const [curr_user, setUser] = useState(new User(0, "", "", ""));
+  const { token, setToken } = useAuth();
 
   useEffect(() => {
     if (localstate) {
@@ -22,19 +24,21 @@ const Login = ({ onLogin }) => {
         alert("invalid email format");
       } else {
         let res = await getUser();
-        if (res == 404) {
+        let usr = res.user;
+        if (usr == 404) {
           alert("Invalid Credentials");
-        } else if (res == 500 || res == null) {
+        } else if (usr == 500 || usr == null) {
           alert("An error occured. Please try again.");
         } else {
-          if (res.disabled) {
+          if (usr.disabled) {
             alert(
               "Disabled Account. Please contact the site adminstarator for more details."
             );
           } else {
-            let u = new User(res.userID, res.nName, res.email, res.password);
-            u.admin = res.admin;
+            let u = new User(usr.userID, usr.nName, usr.email, usr.password);
+            u.admin = usr.admin;
             setUser(u);
+            setToken(res.token);
             setstate("loggedin");
           }
         }
@@ -49,7 +53,7 @@ const Login = ({ onLogin }) => {
       const response = await fetch(`/api/users/get_user/${email}/${password}`);
       const data = await response.json();
       if (response.status == 200) {
-        return data.user;
+        return data;
       } else if (response.status == 404) {
         return 404;
       } else {

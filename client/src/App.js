@@ -7,12 +7,15 @@ import Home from "./components/Home";
 import AdminHome from "./components/AdminHome";
 import User from "./User";
 import "./App.css";
+import { useAuth } from "./AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 //Page header will change to login/logout and site info
 function App() {
   const [state, setState] = useState("info");
   const [current_user, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState("");
+  const { token, setToken } = useAuth();
 
   let loginText = "Log In";
 
@@ -29,6 +32,7 @@ function App() {
       setState("info");
       loginText = "Log In";
       setCurrentUser(null);
+      setToken(null);
     } else {
       setState("login");
       loginText = "Log Out";
@@ -50,9 +54,14 @@ function App() {
     setState("info");
   };
 
+  const token1 = () => {
+    console.log(token);
+  };
+
   return (
     <div>
       <div id="content">
+        <button onClick={token1}>token</button>
         {state != "login" ? (
           <div>
             <button onClick={onLoginClick}>{loginText}</button>
