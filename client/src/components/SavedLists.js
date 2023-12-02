@@ -92,6 +92,21 @@ const SavedLists = (props) => {
       return;
     }
 
+    let dne = [];
+    for (let id of heroIDs) {
+      if (id > 733) {
+        dne.push(id);
+      }
+    }
+
+    if (dne.length > 1) {
+      setAlertText(`Heroes with ID's ${dne} do not exist.`);
+      return;
+    } else if (dne.length > 0) {
+      setAlertText(`Hero with ID ${dne} does not exist.`);
+      return;
+    }
+
     if (newListName === "") {
       setAlertText("Please enter a valid list name");
       return;
@@ -191,6 +206,22 @@ const SavedLists = (props) => {
     if (field === "heroes") {
       if (changeValue.some(isNaN) || changeValue.length == 0) {
         editWarning = `Please enter HeroIDs in the form: 1,2,3`;
+        return;
+      }
+
+      let dne = [];
+
+      for (let id of changeValue) {
+        if (id > 733) {
+          dne.push(id);
+        }
+      }
+
+      if (dne.length > 1) {
+        setEditWarning(`Heroes with ID's ${dne} do not exist.`);
+        return;
+      } else if (dne.length > 0) {
+        setEditWarning(`Hero with ID ${dne} does not exist.`);
         return;
       }
     } else if (field === "ListName") {
