@@ -54,6 +54,12 @@ const SignUp = ({ onSignup }) => {
 
   const handleSignup = async () => {
     setwText("");
+
+    if (state == "veryifying") {
+      setwText("Email has not yet been verified. Refreshing link");
+      return;
+    }
+
     // Validate login details (you can add your own validation logic here)
     if (email && password && password2 && nName) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,7 +82,7 @@ const SignUp = ({ onSignup }) => {
   };
 
   const verifyEmail = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
       const response = await fetch(`/api/check-verified/${email}`);
