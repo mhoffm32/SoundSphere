@@ -342,6 +342,7 @@ const PublicLists = (props) => {
                               <div className="review-item">
                                 <span className="rev-label"> Comment:</span>
                                 <input
+                                  maxlength="1000"
                                   type="text"
                                   placeholder="optional"
                                   onChange={(e) => {

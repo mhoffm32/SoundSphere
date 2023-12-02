@@ -69,6 +69,7 @@ const Login = ({ onLogin }) => {
             <input
               type="text"
               id="email"
+              maxlength="50"
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
@@ -76,6 +77,7 @@ const Login = ({ onLogin }) => {
             Password:{" "}
             <input
               type="text"
+              maxlength="50"
               id="password"
               onChange={(e) => setPassword(e.target.value)}
             />

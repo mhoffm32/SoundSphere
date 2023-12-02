@@ -253,6 +253,7 @@ const SavedLists = (props) => {
       <span>
         List Name:{" "}
         <input
+          maxlength="100"
           type="text"
           id="listName"
           placeholder="List Name"
@@ -260,6 +261,7 @@ const SavedLists = (props) => {
         />
         Description:{" "}
         <input
+          maxlength="500"
           type="text"
           id="description"
           placeholder="optional"
@@ -267,6 +269,7 @@ const SavedLists = (props) => {
         />
         Hero IDs:{" "}
         <input
+          maxlength="500"
           type="text"
           id="heroids"
           placeholder="ex. 18,9,40"
@@ -347,7 +350,7 @@ const SavedLists = (props) => {
                     <span>
                       List Name:
                       <input
-                        maxLength={30}
+                        maxLength="100"
                         type="text"
                         id="listName"
                         placeholder=""
@@ -361,6 +364,7 @@ const SavedLists = (props) => {
                     <span>
                       Description:
                       <input
+                        maxlength="1000"
                         type="text"
                         id="listName"
                         placeholder=""
@@ -375,6 +379,7 @@ const SavedLists = (props) => {
                       <span>
                         Heroes:
                         <input
+                          maxlength="500"
                           type="text"
                           id="heroids"
                           placeholder="ex. 18,9,40"

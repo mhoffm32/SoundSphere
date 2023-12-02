@@ -11,7 +11,12 @@ const AdminHome = (props) => {
   const [users_list, setUsersList] = useState([]);
   const [viewingP, setViewingP] = useState(0);
 
-  const { token, setToken } = useAuth();
+  const { priv, setPriv, use, setUse, dcma, setDcma, token, setToken } =
+    useAuth();
+
+  const [lpriv, setlPriv] = useState(priv);
+  const [luse, setlUse] = useState(use);
+  const [ldcma, setlDcma] = useState(dcma);
 
   useEffect(() => {
     console.log("refresh called");
@@ -97,10 +102,6 @@ const AdminHome = (props) => {
     } catch (error) {
       console.error("Error:", error.message);
     }
-  };
-
-  const list_users = async () => {
-    let res = await getUsers();
   };
 
   return (
@@ -228,16 +229,37 @@ const AdminHome = (props) => {
             {adminState == "policies" ? (
               <>
                 <h2>Privacy Policy</h2>
-                <input type="text"></input>
-                <button id="privacyPolicy"> Submit Edits </button>
-
+                <input
+                  type="text"
+                  onChange={(e) => setlPriv(e.target.value)}
+                  maxlength="2000"
+                ></input>
+                <button id="privacyPolicy" onClick={() => setPriv(lpriv)}>
+                  {" "}
+                  Submit Edits{" "}
+                </button>
                 <h2>Use Policy</h2>
-                <input type="text"></input>
-                <button id="usePolicy">Submit Edits</button>
-
+                <input
+                  type="text"
+                  maxlength="2000"
+                  onChange={(e) => setlUse(e.target.value)}
+                ></input>
+                <button
+                  id="usePolicy"
+                  maxlength="2000"
+                  onClick={() => setUse(luse)}
+                >
+                  Submit Edits
+                </button>
                 <h2>DCMA Policy</h2>
-                <input type="text"></input>
-                <button id="dcmaPolicy">Submit Edits</button>
+                <input
+                  type="text"
+                  maxlength="2000"
+                  onChange={(e) => setlDcma(e.target.value)}
+                ></input>
+                <button id="dcmaPolicy" onClick={() => setDcma(ldcma)}>
+                  Submit Edits
+                </button>
               </>
             ) : (
               <></>
@@ -256,10 +278,13 @@ const AdminHome = (props) => {
                 </button>
                 {viewingP ? (
                   <>
+                    <h3> DMCA Notice & Takedown</h3>
                     <p>
                       1. A document that describes the workflow for implementing
-                      DMCA notice & takedown policy is provided for the SM. 2.
-                      This document contains the instructions for using the
+                      DMCA notice & takedown policy is provided for the SM.
+                    </p>
+                    <p>
+                      2. This document contains the instructions for using the
                       tools provided for implementing the DMCA notice & takedown
                       policy.{" "}
                     </p>

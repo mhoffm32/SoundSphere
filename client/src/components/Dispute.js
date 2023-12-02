@@ -68,7 +68,7 @@ const Dispute = (props) => {
 
   return (
     <div className="dispute-form">
-      <h1>Log form ???x? </h1>
+      <h1>Dispute, Infringement, Takedown Log</h1>
       <span>
         Request Type:
         <select value={type} onChange={(e) => setType(e.target.value)}>
@@ -111,22 +111,22 @@ const Dispute = (props) => {
       </span>
       <span>
         Review details:
-        <input type="text" onChange={(e) => setReview(e.target.value)} />
+        <input
+          type="text"
+          maxlength="500"
+          onChange={(e) => setReview(e.target.value)}
+        />
         Notes:
-        <input type="text" onChange={(e) => setNotes(e.target.value)} />
+        <input
+          type="text"
+          maxlength="500"
+          onChange={(e) => setNotes(e.target.value)}
+        />
         <button id="privacyPolicy" onClick={logDispute}>
           Submit
         </button>
       </span>
       <p>{text}</p>
-      <p>
-        A mechanism is provided to record any takedown request that is received
-        along with the date and the review that is alleged to infringe. [ ] A
-        mechanism is provided to record any infringement notices that are sent
-        along with the date and the review that is alleged to infringe. [ ] A
-        mechanism is provided to record any dispute claims that are received
-        along with the date and the review that is being disputed.
-      </p>
     </div>
   );
 };

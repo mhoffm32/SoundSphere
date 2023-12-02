@@ -14,8 +14,14 @@ function App() {
   const [state, setState] = useState("info");
   const [current_user, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState("");
-  const { token, setToken } = useAuth();
 
+  const [pState, setPState] = useState("");
+  const { token, setToken } = useAuth();
+  const { priv } = useAuth();
+  const { dcma } = useAuth();
+  const { use } = useAuth();
+
+  console.log(priv);
   let loginText = "Log In";
 
   if (state == "loggedin") {
@@ -24,6 +30,20 @@ function App() {
 
   const handleState = (state1) => {
     setState(state1);
+  };
+
+  const getUse = () => {
+    setState("policies");
+    setPState("use");
+  };
+
+  const getDCMA = () => {
+    setState("policies");
+    setPState("dcma");
+  };
+  const getSecurity = () => {
+    setState("policies");
+    setPState("security");
   };
 
   function onLoginClick() {
@@ -56,7 +76,39 @@ function App() {
   return (
     <div>
       <div id="content">
-        {state != "login" ? (
+        {state == "policies" ? (
+          <>
+            <button onClick={() => setState("info")}>Return</button>
+            {pState == "use" ? (
+              <>
+                <h1>Acceptable Use Policy</h1>
+                <p>{use}</p>
+              </>
+            ) : (
+              <></>
+            )}
+            {pState == "dcma" ? (
+              <>
+                <h1>DMCA notice & takedown policy</h1>
+                <p>{dcma}</p>
+              </>
+            ) : (
+              <></>
+            )}
+            {pState == "security" ? (
+              <>
+                <h1>Security & Privacy policy</h1>
+                <p>{priv}</p>
+              </>
+            ) : (
+              <></>
+            )}
+          </>
+        ) : (
+          <></>
+        )}
+
+        {state != "login" && state != "policies" ? (
           <div>
             <button
               onClick={onLoginClick}
@@ -79,7 +131,7 @@ function App() {
         ) : (
           <></>
         )}
-        {state !== "info" && state !== "loggedin" ? (
+        {state !== "info" && state !== "loggedin" && state != "policies" ? (
           <button onClick={returnPage}> Return </button>
         ) : (
           <></>
@@ -103,6 +155,12 @@ function App() {
           <></>
         )}
         {state == "user" ? <Home user={current_user} /> : <></>}
+        {state == "user" ? <Home user={current_user} /> : <></>}
+        <div id="policies">
+          <button onClick={getSecurity}>Security & Privacy Policy</button>
+          <button onClick={getUse}>Acceptable Use Policy </button>
+          <button onClick={getDCMA}>DCMA notice & takedown Policy </button>
+        </div>
       </div>
     </div>
   );
