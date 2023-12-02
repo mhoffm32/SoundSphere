@@ -59,14 +59,14 @@ const Home = (props) => {
               <span>
                 Current Password:{" "}
                 <input
-                  maxlength="50"
+                  maxLength="50"
                   type="text"
                   id="oldPass"
                   onChange={(e) => setOldPass(e.target.value)}
                 />
                 New Password:{" "}
                 <input
-                  maxlength="50"
+                  maxLength="50"
                   type="text"
                   id="newPass"
                   onChange={(e) => setNewPass(e.target.value)}

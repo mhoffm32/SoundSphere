@@ -106,7 +106,7 @@ const SignUp = ({ onSignup }) => {
           <div id="s">
             Email:{" "}
             <input
-              maxlength="50"
+              maxLength="50"
               type="text"
               id="email"
               onChange={(e) => setEmail(e.target.value)}
@@ -115,7 +115,7 @@ const SignUp = ({ onSignup }) => {
           <div id="s">
             Nickname:{" "}
             <input
-              maxlength="20"
+              maxLength="20"
               type="text"
               id="nName"
               onChange={(e) => setnName(e.target.value)}
@@ -127,7 +127,7 @@ const SignUp = ({ onSignup }) => {
             <input
               type="text"
               id="password"
-              maxlength="50"
+              maxLength="50"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
@@ -136,7 +136,7 @@ const SignUp = ({ onSignup }) => {
             Confirm Password:{" "}
             <input
               type="text"
-              maxlength="50"
+              maxLength="50"
               id="password2"
               onChange={(e) => setPassword2(e.target.value)}
             />

@@ -232,7 +232,7 @@ const AdminHome = (props) => {
                 <input
                   type="text"
                   onChange={(e) => setlPriv(e.target.value)}
-                  maxlength="2000"
+                  maxLength="2000"
                 ></input>
                 <button id="privacyPolicy" onClick={() => setPriv(lpriv)}>
                   {" "}
@@ -241,12 +241,12 @@ const AdminHome = (props) => {
                 <h2>Use Policy</h2>
                 <input
                   type="text"
-                  maxlength="2000"
+                  maxLength="2000"
                   onChange={(e) => setlUse(e.target.value)}
                 ></input>
                 <button
                   id="usePolicy"
-                  maxlength="2000"
+                  maxLength="2000"
                   onClick={() => setUse(luse)}
                 >
                   Submit Edits
@@ -254,7 +254,7 @@ const AdminHome = (props) => {
                 <h2>DCMA Policy</h2>
                 <input
                   type="text"
-                  maxlength="2000"
+                  maxLength="2000"
                   onChange={(e) => setlDcma(e.target.value)}
                 ></input>
                 <button id="dcmaPolicy" onClick={() => setDcma(ldcma)}>

@@ -113,13 +113,13 @@ const Dispute = (props) => {
         Review details:
         <input
           type="text"
-          maxlength="500"
+          maxLength="500"
           onChange={(e) => setReview(e.target.value)}
         />
         Notes:
         <input
           type="text"
-          maxlength="500"
+          maxLength="500"
           onChange={(e) => setNotes(e.target.value)}
         />
         <button id="privacyPolicy" onClick={logDispute}>
