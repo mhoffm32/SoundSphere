@@ -245,17 +245,19 @@ router3.get("/saved-lists/:id", authenticateToken, (req, res) => {
             heroes_info.push(hero_obj);
           }
 
-          lists.push({
-            id: list.UserID,
-            heroes: heroes_info,
-            ListName: list.ListName,
-            creator: list.Nickname,
-            lastEdit: list.LastEdit,
-            rating: listRating,
-            reviews: lratings,
-            description: list.Description,
-            public: list.Public,
-          });
+          if (list.Nickname != null) {
+            lists.push({
+              id: list.UserID,
+              heroes: heroes_info,
+              ListName: list.ListName,
+              creator: list.Nickname,
+              lastEdit: list.LastEdit,
+              rating: listRating,
+              reviews: lratings,
+              description: list.Description,
+              public: list.Public,
+            });
+          }
         }
 
         lists = lists.sort(
@@ -319,6 +321,7 @@ router2.get("/get_user/:email/:password", (req, res) => {
 
 router3.post("/new-list", authenticateToken, (req, res) => {
   const newList = req.body;
+  console.log("initial value:", req.body);
   const sql =
     "INSERT INTO Hero_Lists(UserID, ListName, HeroIDs, Nickname, LastEdit, Description, Ratings, Public) VALUES (?,?,?,?,?,?,?,?)";
   const values = [
@@ -331,6 +334,8 @@ router3.post("/new-list", authenticateToken, (req, res) => {
     sanitize(JSON.stringify(newList.ratings)),
     Number(sanitize(newList.public)),
   ];
+
+  console.log("value when adding:", sanitize(JSON.stringify(newList.heroIDs)));
 
   try {
     connection.query(sql, values, (error, results) => {
@@ -364,51 +369,49 @@ router3.get("/delete-list/:id/:listName", (req, res) => {
   }
 });
 
-router3.get(
-  "/edit-list/:id/:listName/:field/:value",
-  authenticateToken,
-  (req, res) => {
-    const id = Number(sanitize(req.params.id));
-    const lName = sanitize(req.params.listName);
-    let field = sanitize(req.params.field);
-    let value = sanitize(req.params.value);
+router3.post("/edit-list", authenticateToken, (req, res) => {
+  const id = Number(sanitize(req.body.id));
+  const lName = sanitize(req.body.name);
+  let field = sanitize(req.body.field);
+  let value = req.body.value;
 
-    if (field === "public") {
-      value = Number(value);
-    } else if (field === "heroes") {
-      field = "HeroIDs";
-      value = JSON.stringify(value);
-    }
-
-    const sql = `UPDATE Hero_Lists SET ${field} = ? WHERE UserID = ? AND ListName = ?`;
-    const values = [value, id, lName];
-
-    try {
-      connection.query(sql, values, (error, results) => {
-        if (error) {
-          res.status(501).json({ message: error });
-        } else {
-          try {
-            const sql2 =
-              "UPDATE Hero_Lists SET LastEdit = ? WHERE UserID = ? AND ListName = ?";
-            const value = [getCurrentDateTime(), id, lName];
-            connection.query(sql2, value, (error, results) => {
-              if (error) {
-                res.status(501).json({ message: error });
-              } else {
-                res.status(200).json({ message: "successfully updated" });
-              }
-            });
-          } catch (error) {
-            res.status(500).json({ error: "An server side error occurred " });
-          }
-        }
-      });
-    } catch (error) {
-      res.status(500).json({ error: "An server side error occurred " });
-    }
+  if (field === "public") {
+    value = Number(value);
+  } else if (field === "heroes") {
+    field = "HeroIDs";
+    value = JSON.stringify(value);
   }
-);
+
+  console.log("value from api/edit-list:", value);
+
+  const sql = `UPDATE Hero_Lists SET ${field} = ? WHERE UserID = ? AND ListName = ?`;
+  const values = [value, id, lName];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        res.status(501).json({ message: error });
+      } else {
+        try {
+          const sql2 =
+            "UPDATE Hero_Lists SET LastEdit = ? WHERE UserID = ? AND ListName = ?";
+          const value = [getCurrentDateTime(), id, lName];
+          connection.query(sql2, value, (error, results) => {
+            if (error) {
+              res.status(501).json({ message: error });
+            } else {
+              res.status(200).json({ message: "successfully updated" });
+            }
+          });
+        } catch (error) {
+          res.status(500).json({ error: "An server side error occurred " });
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
 
 function getCurrentDateTime() {
   const now = new Date();

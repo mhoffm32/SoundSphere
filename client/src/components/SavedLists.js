@@ -76,7 +76,7 @@ const SavedLists = (props) => {
           `Request to fetch lists failed with status ${response.status}: ${response.statusText}`
         );
       } else {
-        console.log(lis);
+        console.log("lists:", lis);
         setLists(lis);
       }
     } catch (error) {
@@ -86,6 +86,8 @@ const SavedLists = (props) => {
 
   const newList = async () => {
     setAlertText("");
+
+    console.log("heroIDs when adding:", heroIDs);
 
     if (heroIDs.some(isNaN) || heroIDs.length == 0) {
       setAlertText(`Please enter HeroIDs in the form: 1,2,3`);
@@ -151,7 +153,6 @@ const SavedLists = (props) => {
       };
 
       const response = await fetch("/api/lists/new-list", send);
-
       const res = await response.json();
 
       if (!response.ok) {
@@ -170,6 +171,7 @@ const SavedLists = (props) => {
   };
 
   const deleteList = async (list) => {
+    setConfirmVis(false);
     const response = await fetch(
       `/api/lists/delete-list/${user.id}/${list.ListName}`,
       {
@@ -189,7 +191,6 @@ const SavedLists = (props) => {
         );
         console.log("res", res);
       } else {
-        console.log("all good");
         console.log(res);
         getLists();
       }
@@ -200,12 +201,13 @@ const SavedLists = (props) => {
 
   const submitEdit = async (list) => {
     let editWarning = "";
+    setEditWarning("");
     let id = list.id;
     let name = list.ListName;
 
     if (field === "heroes") {
       if (changeValue.some(isNaN) || changeValue.length == 0) {
-        editWarning = `Please enter HeroIDs in the form: 1,2,3`;
+        setEditWarning(`Please enter HeroIDs in the form: 1,2,3`);
         return;
       }
 
@@ -226,7 +228,7 @@ const SavedLists = (props) => {
       }
     } else if (field === "ListName") {
       if (changeValue === "") {
-        editWarning = "Please enter a valid list name";
+        setEditWarning("Please enter a valid list name");
         return;
       } else {
         if (heroLists) {
@@ -236,22 +238,31 @@ const SavedLists = (props) => {
                 changeValue.toLowerCase().trim() &&
               l.id !== list.id
             ) {
-              editWarning = `List named '${changeValue}' already exists`;
+              setEditWarning(`List named '${changeValue}' already exists`);
               return;
             }
           }
         }
       }
     }
-    const response = await fetch(
-      `/api/lists/edit-list/${id}/${name}/${field}/${changeValue}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: token,
-        },
-      }
-    );
+
+    const edits = {
+      id: id,
+      name: name,
+      field: field,
+      value: changeValue,
+    };
+
+    const send = {
+      method: "POST",
+      headers: {
+        Authorization: token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(edits),
+    };
+
+    const response = await fetch("/api/lists/edit-list", send);
 
     const res = await response.json();
 
@@ -267,12 +278,11 @@ const SavedLists = (props) => {
         getLists();
       }
     } catch (error) {
-      console.error("Error adding new list.", error.message);
+      console.error("Error editing list.", error.message);
     }
 
     setEditWarning(editWarning);
   };
-
   const setListEdit = (index) => {
     isEditing ? setEdit(0) : setEdit(1);
     setEditIndex(index);
