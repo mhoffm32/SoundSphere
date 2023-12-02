@@ -9,6 +9,7 @@ const path = require("path");
 const router = express.Router();
 const router2 = express.Router();
 const router3 = express.Router();
+const router4 = express.Router();
 const jwt = require("jsonwebtoken");
 
 const userKey = "userKey";
@@ -51,11 +52,13 @@ app.use("/", express.static("client"));
 app.use("/api/hero", router);
 app.use("/api/users", router2);
 app.use("/api/lists", router3);
+app.use("/api/logs", router4);
 
 app.use(express.json());
 router.use(express.json());
 router2.use(express.json());
 router3.use(express.json());
+router4.use(express.json());
 
 //to automatically log the client requests
 app.get("/api", (req, res) => {
@@ -65,6 +68,43 @@ app.get("/api", (req, res) => {
 app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
   next();
+});
+
+router4.post("/newLog", authenticateAdminToken, (req, res) => {
+  const newLog = req.body;
+  let year = sanitize(newLog.year);
+  let month = sanitize(newLog.month);
+  let day = sanitize(newLog.day);
+
+  if (month.split("").length == 1) {
+    month = "0" + month;
+  } else if (day.split("").length == 1) {
+    day = "0" + day;
+  }
+
+  dateRec = `${year}-${month}-${day}`;
+
+  const sql =
+    "INSERT INTO dcmaLog(dateRec, revDetails, notes, status, type) VALUES (?,?,?,?,?)";
+  const values = [
+    dateRec,
+    sanitize(newLog.revDetails),
+    sanitize(newLog.notes),
+    "active",
+    sanitize(newLog.type),
+  ];
+
+  try {
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        res.status(501).json({ message: error.message });
+      } else {
+        res.status(200).json({ message: "successfully logged" });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
 });
 
 function authenticateToken(req, res, next) {

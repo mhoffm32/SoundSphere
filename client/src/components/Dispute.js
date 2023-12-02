@@ -5,10 +5,12 @@ import { useAuth } from "../AuthContext";
 
 const Dispute = (props) => {
   const [type, setType] = useState("takedown");
-  const [year, setYear] = useState("takedown");
+  const [year, setYear] = useState("2023");
   const [day, setDay] = useState("01");
   const [month, setMonth] = useState("01");
-  const [review, setReview] = useState("01");
+  const [review, setReview] = useState("");
+  const [notes, setNotes] = useState("");
+  const [text, setText] = useState("");
   const { token, setToken } = useAuth();
 
   const generateOptions = (index) => {
@@ -25,7 +27,43 @@ const Dispute = (props) => {
   };
 
   const logDispute = async () => {
-    //do this
+    setText("");
+    if (review) {
+      try {
+        const newLog = {
+          year: year,
+          month: month,
+          day: day,
+          revDetails: review,
+          notes: notes,
+          type: type,
+        };
+
+        const send = {
+          method: "POST",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newLog),
+        };
+
+        const response = await fetch("/api/logs/newLog", send);
+        const res = await response.json();
+
+        if (!response.ok) {
+          console.error(
+            `Request to log failed with ${response.status}: ${res.message}`
+          );
+        } else {
+          setText(`${type} successfully logged.`);
+        }
+      } catch (error) {
+        console.error("Error adding log.", error.message);
+      }
+    } else {
+      setText("Please include review details. ");
+    }
   };
 
   return (
@@ -47,7 +85,7 @@ const Dispute = (props) => {
       </span>
       <span>
         Year:
-        <select value={type} onChange={(e) => setYear(e.target.value)}>
+        <select onChange={(e) => setYear(e.target.value)}>
           <option key="1" value="2023">
             2023
           </option>
@@ -61,33 +99,26 @@ const Dispute = (props) => {
       </span>
       <span>
         Month:
-        <select
-          id="day"
-          name="day"
-          value={day}
-          onChange={(e) => setMonth(e.target.value)}
-        >
+        <select id="day" name="day" onChange={(e) => setMonth(e.target.value)}>
           {generateOptions(12)}
         </select>
       </span>
       <span>
         Day:
-        <select
-          id="day"
-          name="day"
-          value={day}
-          onChange={(e) => setDay(e.target.value)}
-        >
+        <select id="day" name="day" onChange={(e) => setDay(e.target.value)}>
           {generateOptions(31)}
         </select>
       </span>
-      Infringing Review:
-      <input type="text" onChange={setReview(e.target.value)}>
-        {" "}
-      </input>
-      <button id="privacyPolicy" onClick={logDispute}>
-        Submit
-      </button>
+      <span>
+        Review details:
+        <input type="text" onChange={(e) => setReview(e.target.value)} />
+        Notes:
+        <input type="text" onChange={(e) => setNotes(e.target.value)} />
+        <button id="privacyPolicy" onClick={logDispute}>
+          Submit
+        </button>
+      </span>
+      <p>{text}</p>
       <p>
         A mechanism is provided to record any takedown request that is received
         along with the date and the review that is alleged to infringe. [ ] A
