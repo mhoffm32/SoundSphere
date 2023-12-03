@@ -43,12 +43,12 @@ const Login = ({ onLogin }) => {
           }
         }
       }
-    } else if (!email) {
-      alert("Please enter an email.");
-    } else if (!password) {
-      setWarning("Please enter an password.");
-    } else {
+    } else if (!email && !password) {
       setWarning("Please enter both an email and password");
+    } else if (!password && email) {
+      setWarning("Please enter an password.");
+    } else if (!email && password) {
+      setWarning("Please enter an email.");
     }
   };
 

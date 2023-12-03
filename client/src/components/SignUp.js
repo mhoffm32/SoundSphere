@@ -55,7 +55,7 @@ const SignUp = ({ onSignup }) => {
   const handleSignup = async () => {
     setwText("");
 
-    if (state == "veryifying") {
+    if (localstate == "verifying") {
       setwText("Email has not yet been verified. Refreshing link");
       return;
     }
@@ -83,6 +83,7 @@ const SignUp = ({ onSignup }) => {
 
   const verifyEmail = async () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
+    setwText("");
 
     try {
       const response = await fetch(`/api/check-verified/${email}`);
@@ -106,7 +107,7 @@ const SignUp = ({ onSignup }) => {
 
   return (
     <div className="signup">
-      <h1>Hero World Signup</h1>
+      <h1>Hero World Account Creation</h1>
       <div className="signup-input">
         <span>
           <div id="s">
@@ -119,7 +120,7 @@ const SignUp = ({ onSignup }) => {
             />
           </div>
           <div id="s">
-            Nickname:{" "}
+            Username:{" "}
             <input
               maxLength="20"
               type="text"
@@ -127,7 +128,6 @@ const SignUp = ({ onSignup }) => {
               onChange={(e) => setnName(e.target.value)}
             />
           </div>
-
           <div id="s">
             Password:{" "}
             <input

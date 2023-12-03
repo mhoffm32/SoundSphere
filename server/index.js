@@ -451,6 +451,7 @@ router3.post("/add-review", authenticateToken, (req, res) => {
           user: newReview.user,
           rating: newReview.rating,
           comment: comment,
+          editDate: getCurrentDateTime(),
           hidden: 0,
         });
 
@@ -837,7 +838,7 @@ const areStringsSimilar = (str1, str2) => {
     str1.toLowerCase(),
     str2.toLowerCase()
   );
-  const threshold = 0.9;
+  const threshold = 0.65;
   return similarity > threshold;
 };
 
@@ -859,13 +860,20 @@ router.get(
     const filteredHeroes = hero_info.filter((hero) => {
       // Check each condition
       return Object.entries(filter).every(([key, value]) => {
-        if (value === "none") {
+        if (value.trim() === "none") {
           return true;
         }
         if (key === "powers") {
-          return hero[key].includes(value);
+          let found = false;
+          for (let p of hero[key]) {
+            found = areStringsSimilar(p.toLowerCase(), value.toLowerCase());
+            if (found) {
+              break;
+            }
+          }
+          return found;
         } else {
-          if (areStringsSimilar(hero[key], value)) {
+          if (areStringsSimilar(hero[key].toLowerCase(), value.toLowerCase())) {
             return true;
           } else {
             return hero[key].toLowerCase().startsWith(value.toLowerCase());
@@ -873,7 +881,6 @@ router.get(
         }
       });
     });
-
     res.json(filteredHeroes);
   }
 );

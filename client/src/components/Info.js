@@ -22,7 +22,7 @@ const Info = (props) => {
       </p>
       <button value="signup" onClick={(e) => choice(e.target.value)}>
         {" "}
-        Sign Up
+        Create Account
       </button>
       <br />
       <br />
