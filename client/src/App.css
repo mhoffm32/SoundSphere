@@ -15,6 +15,7 @@ li {
     align-items: center; /* Center contents vertically */
     justify-content: space-between; /* Distribute contents along the main axis (horizontally) */
 }
+
   
 #hero-title{
     margin: 20px;
@@ -406,4 +407,24 @@ h4{
 
 .label-infringe {
     width: 25ch;
+}
+
+.manage-box{
+    transform: translate(550px,-130px);
+}
+
+.manage-box2{
+    transform: translate(940px,-95px);
+}
+
+#p-input{
+    width: 800px; 
+    height: 150px;
+    font-size: 16px;
+}
+
+.instructions{
+    list-style-type: decimal;
+    margin-left: 1.5em; 
+    padding-left: 1em; 
 }

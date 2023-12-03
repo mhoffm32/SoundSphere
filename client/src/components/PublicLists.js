@@ -21,6 +21,7 @@ const PublicLists = (props) => {
     } else {
       setExpandedResults([...expandedResults, index]);
     }
+    getLists();
   };
 
   const toggleExpansionHeroes = (listIndex, heroIndex) => {
@@ -91,7 +92,6 @@ const PublicLists = (props) => {
           `Request to add review failed with ${response.status}: ${response.statusText}`
         );
       } else {
-        console.log("all good");
         console.log(res);
         getLists();
       }
@@ -280,6 +280,7 @@ const PublicLists = (props) => {
                                       )}
                                       {user.admin ? (
                                         <>
+                                          <p></p>
                                           <div className="review-item">
                                             <span className="rev-label">
                                               Name:
@@ -306,7 +307,7 @@ const PublicLists = (props) => {
                                             {review.hidden ? (
                                               <>Unhide review</>
                                             ) : (
-                                              <>Hide Review</>
+                                              <>Mark as Infringing</>
                                             )}
                                           </button>
                                         </>

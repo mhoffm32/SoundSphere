@@ -38,16 +38,23 @@ const Home = (props) => {
     <div>
       {user ? (
         <div>
-          <button
-            onClick={() => {
-              state == "home" ? setState("manage") : setState("home");
-            }}
-          >
-            {state == "home" ? <>Manage Account</> : <>Return</>}
-          </button>
+          <div className="manage-box">
+            <button
+              id="acc-btn"
+              onClick={() => {
+                state == "home" ? setState("manage") : setState("home");
+              }}
+              style={{
+                backgroundColor: state === "manage" ? "rgb(20,204,204)" : "",
+                fontWeight: state === "manage" ? "bold" : "normal",
+              }}
+            >
+              {state == "home" ? <>Manage Account</> : <>Return</>}
+            </button>
+          </div>
           {state == "home" ? (
             <>
-              <h2>{user.nName}'s Hero Search</h2>
+              <h2>{user.nName}'s HeroWorld</h2>
               <UnauthHome user={user} />
             </>
           ) : (

@@ -87,7 +87,14 @@ function App() {
             {pState == "use" ? (
               <>
                 <h1>Acceptable Use Policy</h1>
-                <p>{use}</p>
+                <p>
+                  {use.split("\n").map((line, index) => (
+                    <span key={index}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
+                </p>
               </>
             ) : (
               <></>
@@ -95,7 +102,14 @@ function App() {
             {pState == "dcma" ? (
               <>
                 <h1>DMCA notice & takedown policy</h1>
-                <p>{dcma}</p>
+                <p>
+                  {dcma.split("\n").map((line, index) => (
+                    <span key={index}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
+                </p>
               </>
             ) : (
               <></>
@@ -103,7 +117,14 @@ function App() {
             {pState == "security" ? (
               <>
                 <h1>Security & Privacy policy</h1>
-                <p>{priv}</p>
+                <p>
+                  {priv.split("\n").map((line, index) => (
+                    <span key={index}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
+                </p>
               </>
             ) : (
               <></>
@@ -128,8 +149,12 @@ function App() {
             >
               {loginText}
             </button>
+
             {current_user !== null && current_user.id !== 0 ? (
-              <>Welcome, {current_user.nName}</>
+              <>
+                Welcome, {current_user.nName}{" "}
+                {current_user.admin ? <>(Admin)</> : <></>}
+              </>
             ) : (
               <></>
             )}

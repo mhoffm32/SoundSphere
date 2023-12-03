@@ -8,40 +8,32 @@ export const AuthProvider = ({ children }) => {
   const [use, setUse] = useState("acceptable use");
   const [dcma, setDcma] = useState("....dcma");
 
-  let set = 0;
-
   useEffect(() => {
     getPolicies();
   }, []);
 
   useEffect(() => {
-    if (set) {
-      const newPolicy = {
-        policy: "privacy",
-        text: priv,
-      };
-      updatePolicy(newPolicy);
-    }
+    const newPolicy = {
+      policy: "privacy",
+      text: priv,
+    };
+    updatePolicy(newPolicy);
   }, [priv]);
 
   useEffect(() => {
-    if (set) {
-      const newPolicy = {
-        policy: "accUse",
-        text: use,
-      };
-      updatePolicy(newPolicy);
-    }
+    const newPolicy = {
+      policy: "accUse",
+      text: use,
+    };
+    updatePolicy(newPolicy);
   }, [use]);
 
   useEffect(() => {
-    if (set) {
-      const newPolicy = {
-        policy: "dcma",
-        text: dcma,
-      };
-      updatePolicy(newPolicy);
-    }
+    const newPolicy = {
+      policy: "dcma",
+      text: dcma,
+    };
+    updatePolicy(newPolicy);
   }, [dcma]);
 
   const updatePolicy = async (newPolicy) => {
@@ -81,7 +73,6 @@ export const AuthProvider = ({ children }) => {
         setDcma(res.dcma);
         setPriv(res.privacy);
         setUse(res.use);
-        set = 1;
       }
     } catch (error) {
       console.error("error.", error.message);

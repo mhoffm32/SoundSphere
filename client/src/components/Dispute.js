@@ -116,7 +116,7 @@ const Dispute = (props) => {
           </select>
         </p>
         <p>
-          <p className="label-infringe">Review details::</p>
+          <p className="label-infringe">Review details:</p>
           <input
             type="text"
             maxLength="500"

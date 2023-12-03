@@ -32,7 +32,7 @@ const Login = ({ onLogin }) => {
         } else {
           if (usr.disabled) {
             setWarning(
-              "Disabled Account. Please contact the site adminstarator for more details."
+              "Disabled Account. Please contact accounts@heroworld.com for more details."
             );
           } else {
             let u = new User(usr.userID, usr.nName, usr.email, usr.password);
@@ -65,7 +65,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login">
-      <h1 className="general-title">Hero World Login</h1>
+      <h1 className="general-title">HeroWorld Login</h1>
       <div className="l-input">
         <span>
           <div id="l">

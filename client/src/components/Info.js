@@ -8,7 +8,7 @@ const Info = (props) => {
 
   return (
     <div className="info">
-      <h1 id="info-title">Hero World</h1>
+      <h1 id="info-title">HeroWorld</h1>
       <p id="blurb">
         Welcome to the superhero information website. Here you can search
         through our database of super heroes and view detailed descriptions
