@@ -10,6 +10,9 @@ const AdminHome = (props) => {
   const [adminState, setAdminState] = useState("");
   const [users_list, setUsersList] = useState([]);
   const [viewingP, setViewingP] = useState(0);
+  const [pText, setPtext] = useState("");
+  const [uText, setUtext] = useState("");
+  const [dText, setDtext] = useState("");
 
   const { priv, setPriv, use, setUse, dcma, setDcma, token, setToken } =
     useAuth();
@@ -17,13 +20,6 @@ const AdminHome = (props) => {
   const [lpriv, setlPriv] = useState(priv);
   const [luse, setlUse] = useState(use);
   const [ldcma, setlDcma] = useState(dcma);
-
-  useEffect(() => {
-    console.log("refresh called");
-  }, []);
-  useEffect(() => {
-    console.log("users list", users_list);
-  }, [users_list]);
 
   async function getUsers() {
     setAdminState("users");
@@ -102,6 +98,19 @@ const AdminHome = (props) => {
     } catch (error) {
       console.error("Error:", error.message);
     }
+  };
+
+  const setPriv1 = () => {
+    setPriv(lpriv);
+    setPtext("Privacy & Security Policy successfully changed.");
+  };
+  const setUse1 = () => {
+    setUse(luse);
+    setUtext("Acceptable Use Policy successfully changed.");
+  };
+  const setDcma1 = () => {
+    setDcma(ldcma);
+    setDtext("DCMA Notice & Takedown Request Policy successfully changed.");
   };
 
   return (
@@ -241,32 +250,37 @@ const AdminHome = (props) => {
                 <h2>Privacy Policy</h2>
                 <input
                   type="text"
+                  defaultValue={priv}
                   onChange={(e) => setlPriv(e.target.value)}
                   maxLength="2000"
                 ></input>
                 <button
                   className="admin-sbmt submit-btn"
                   id="privacyPolicy"
-                  onClick={() => setPriv(lpriv)}
+                  onClick={() => setPriv1(lpriv)}
                 >
                   Submit Edits
                 </button>
+                <span style={{ marginLeft: "10px" }}>{pText}</span>
                 <h2>Use Policy</h2>
                 <input
                   type="text"
                   maxLength="2000"
+                  defaultValue={use}
                   onChange={(e) => setlUse(e.target.value)}
                 ></input>
                 <button
                   id="usePolicy"
                   className="admin-sbmt submit-btn"
                   maxLength="2000"
-                  onClick={() => setUse(luse)}
+                  onClick={() => setUse1(luse)}
                 >
                   Submit Edits
                 </button>
+                <span style={{ marginLeft: "10px" }}>{uText}</span>
                 <h2>DCMA Policy</h2>
                 <input
+                  defaultValue={dcma}
                   type="text"
                   maxLength="2000"
                   onChange={(e) => setlDcma(e.target.value)}
@@ -274,10 +288,11 @@ const AdminHome = (props) => {
                 <button
                   className="admin-sbmt submit-btn"
                   id="dcmaPolicy"
-                  onClick={() => setDcma(ldcma)}
+                  onClick={() => setDcma1(ldcma)}
                 >
                   Submit Edits
                 </button>
+                <span style={{ marginLeft: "10px" }}>{dText}</span>
               </>
             ) : (
               <></>

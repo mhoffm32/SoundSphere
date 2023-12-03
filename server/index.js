@@ -10,6 +10,7 @@ const router = express.Router();
 const router2 = express.Router();
 const router3 = express.Router();
 const router4 = express.Router();
+const router5 = express.Router();
 const jwt = require("jsonwebtoken");
 
 const userKey = "userKey";
@@ -53,12 +54,14 @@ app.use("/api/hero", router);
 app.use("/api/users", router2);
 app.use("/api/lists", router3);
 app.use("/api/logs", router4);
+app.use("/api/policy", router5);
 
 app.use(express.json());
 router.use(express.json());
 router2.use(express.json());
 router3.use(express.json());
 router4.use(express.json());
+router5.use(express.json());
 
 //to automatically log the client requests
 app.get("/api", (req, res) => {
@@ -68,6 +71,46 @@ app.get("/api", (req, res) => {
 app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
   next();
+});
+
+router5.post("/update-policy", authenticateAdminToken, (req, res) => {
+  const newPolicy = req.body;
+  let policy = newPolicy.policy;
+  let text = newPolicy.text;
+
+  const sql = `UPDATE Policies SET ${policy} = ?`;
+
+  try {
+    connection.query(sql, [text], (error, results) => {
+      if (error) {
+        res.status(501).json({ message: error.message });
+      } else {
+        res.status(200).json({ message: "successfully updated" });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
+});
+
+router5.get("/get-policies", (req, res) => {
+  const sql = `SELECT * FROM Policies`;
+
+  try {
+    connection.query(sql, (error, results) => {
+      if (error) {
+        res.status(501).json({ message: error.message });
+      } else {
+        res.status(200).json({
+          privacy: results[0].privacy,
+          use: results[0].accUse,
+          dcma: results[0].dcma,
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "An server side error occurred " });
+  }
 });
 
 router4.post("/newLog", authenticateAdminToken, (req, res) => {

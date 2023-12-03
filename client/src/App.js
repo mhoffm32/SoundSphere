@@ -20,6 +20,7 @@ function App() {
   const { priv } = useAuth();
   const { dcma } = useAuth();
   const { use } = useAuth();
+  const [lastState, setLastState] = useState("");
 
   console.log(priv);
   let loginText = "Log In";
@@ -33,15 +34,19 @@ function App() {
   };
 
   const getUse = () => {
+    setLastState(state);
+
     setState("policies");
     setPState("use");
   };
 
   const getDCMA = () => {
+    setLastState(state);
     setState("policies");
     setPState("dcma");
   };
   const getSecurity = () => {
+    setLastState(state);
     setState("policies");
     setPState("security");
   };
@@ -78,7 +83,7 @@ function App() {
       <div id="content">
         {state == "policies" ? (
           <>
-            <button onClick={() => setState("info")}>Return</button>
+            <button onClick={() => setState(lastState)}>Return</button>
             {pState == "use" ? (
               <>
                 <h1>Acceptable Use Policy</h1>
