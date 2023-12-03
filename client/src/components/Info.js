@@ -20,7 +20,11 @@ const Info = (props) => {
         fans or can be made private for your own personal viewing. Signup for
         free today!{" "}
       </p>
-      <button value="signup" onClick={(e) => choice(e.target.value)}>
+      <button
+        className="default-btn"
+        value="signup"
+        onClick={(e) => choice(e.target.value)}
+      >
         {" "}
         Create Account
       </button>

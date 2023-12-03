@@ -65,7 +65,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login">
-      <h1>Hero World Login</h1>
+      <h1 className="general-title">Hero World Login</h1>
       <div className="l-input">
         <span>
           <div id="l">
@@ -88,7 +88,9 @@ const Login = ({ onLogin }) => {
           </div>
         </span>
         <br />
-        <button onClick={handleLog}>Login</button>
+        <button className="submit-btn" onClick={handleLog}>
+          Login
+        </button>
       </div>
       <p>{warningText}</p>
     </div>

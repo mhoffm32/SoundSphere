@@ -50,45 +50,52 @@ const HeroSearch = ({ choice }) => {
 
   return (
     <div className="hero-search">
-      <h2>Super Hero Search</h2>
-      Hero-Name:{" "}
-      <input
-        type="text"
-        id="email"
-        placeholder="any"
-        onChange={(e) => setHName(e.target.value)}
-      />
-      <span>
-        Race:
-        <input
-          id="hero-races"
-          maxLength="50"
-          onChange={(e) => setSRace(e.target.value)}
-        ></input>
-      </span>
-      <span>
-        Power:
-        <input
-          id="hero-powers"
-          maxLength="50"
-          onChange={(e) => setSPower(e.target.value)}
-        ></input>
-      </span>
-      <span>
-        Publisher:
-        <input
-          id="pub-input"
-          maxLength="50"
-          onChange={(e) => setSPub(e.target.value)}
-        ></input>
-      </span>
-      <button id="search" onClick={getResults}>
-        Search
-      </button>
+      <h2 className="general-title">Super Hero Search</h2>
+      <div className="search-input-container">
+        <p>
+          <p className="input-txt">Hero-Name:</p>
+          <input
+            type="text"
+            id="email"
+            placeholder="enter name..."
+            onChange={(e) => setHName(e.target.value)}
+          />
+        </p>
+        <p>
+          <p className="input-txt">Race:</p>
+          <input
+            id="hero-races"
+            maxLength="50"
+            placeholder="enter race..."
+            onChange={(e) => setSRace(e.target.value)}
+          ></input>
+        </p>
+        <p>
+          <p className="input-txt">Power:</p>
+          <input
+            id="hero-powers"
+            maxLength="50"
+            placeholder="enter power..."
+            onChange={(e) => setSPower(e.target.value)}
+          ></input>
+        </p>
+        <p>
+          <p className="input-txt">Publisher:</p>
+          <input
+            id="pub-input"
+            maxLength="50"
+            placeholder="enter publisher..."
+            onChange={(e) => setSPub(e.target.value)}
+          ></input>
+        </p>
+        <button className="submit-btn" id="search" onClick={getResults}>
+          Search
+        </button>
+      </div>
       <br />
       <div id="results">
         {searchResults !== null && searchResults !== undefined && (
-          <div>
+          <div className="results-inner">
             {searchResults.map((result, index) => (
               <div key={index} className="search-result">
                 <div
@@ -103,21 +110,22 @@ const HeroSearch = ({ choice }) => {
                 {expandedResults.includes(index) && (
                   <div className="result-details">
                     <p>
-                      Gender: {result.Gender}
+                      <strong>Gender:</strong> {result.Gender}
                       <br />
-                      Race: {result.Race} <br />
-                      Alignment: {result.Alignment}
+                      <strong>Race:</strong> {result.Race} <br />
+                      <strong>Alignment:</strong> {result.Alignment}
                       <br />
-                      Hair Color: {result["Hair color"]}
+                      <strong>Hair Color:</strong> {result["Hair color"]}
                       <br />
-                      Skin Color: {result["Skin color"]} <br />
-                      Eye Color: {result["Eye color"]}
+                      <strong>Skin Color:</strong> {result["Skin color"]} <br />
+                      <strong>Eye Color:</strong> {result["Eye color"]}
                       <br />
-                      Height: {result["Height"]} <br />
-                      Weight: {result.Weight}
-                      <br /> Powers: {result.powers.join(", ")}
+                      <strong>Height:</strong> {result["Height"]} <br />
+                      <strong>Weight:</strong> {result.Weight}
+                      <br /> <strong>Powers:</strong> {result.powers.join(", ")}
                     </p>
                     <button
+                      className="search-btn-form submit-btn"
                       onClick={() => {
                         window.open(
                           `https://duckduckgo.com/${result.name}%20${result.Publisher}`

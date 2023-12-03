@@ -74,7 +74,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="outter">
       <div id="content">
         {state == "policies" ? (
           <>
@@ -109,7 +109,7 @@ function App() {
         )}
 
         {state != "login" && state != "policies" ? (
-          <div>
+          <div className="login-btn-top">
             <button
               onClick={onLoginClick}
               style={{
@@ -118,6 +118,7 @@ function App() {
                     ? "rgb(242, 126, 132)"
                     : "rgb(129, 199, 146)",
                 fontWeight: state === "login" ? "bold" : "bold",
+                marginRight: "1em",
               }}
             >
               {loginText}
@@ -132,7 +133,9 @@ function App() {
           <></>
         )}
         {state !== "info" && state !== "loggedin" && state != "policies" ? (
-          <button onClick={returnPage}> Return </button>
+          <div className="login-btn-top">
+            <button onClick={returnPage}> Return </button>
+          </div>
         ) : (
           <></>
         )}
@@ -157,9 +160,15 @@ function App() {
         {state == "user" ? <Home user={current_user} /> : <></>}
         {state == "user" ? <Home user={current_user} /> : <></>}
         <div id="policies">
-          <button onClick={getSecurity}>Security & Privacy Policy</button>
-          <button onClick={getUse}>Acceptable Use Policy </button>
-          <button onClick={getDCMA}>DCMA notice & takedown Policy </button>
+          <button className="footer-btn" onClick={getSecurity}>
+            Security & Privacy Policy
+          </button>
+          <button className="footer-btn" onClick={getUse}>
+            Acceptable Use Policy{" "}
+          </button>
+          <button className="footer-btn" onClick={getDCMA}>
+            DCMA notice & takedown Policy{" "}
+          </button>
         </div>
       </div>
     </div>

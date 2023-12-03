@@ -107,7 +107,7 @@ const SignUp = ({ onSignup }) => {
 
   return (
     <div className="signup">
-      <h1>Hero World Account Creation</h1>
+      <h1 className="general-title">Hero World Account Creation</h1>
       <div className="signup-input">
         <span>
           <div id="s">
@@ -149,7 +149,7 @@ const SignUp = ({ onSignup }) => {
           </div>
         </span>
         <br />
-        <button id="sbtn" onClick={handleSignup}>
+        <button className="submit-btn" id="sbtn" onClick={handleSignup}>
           Sign Up
         </button>
         {warningText != "" ? <p>{warningText}</p> : <></>}

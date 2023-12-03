@@ -290,36 +290,42 @@ const SavedLists = (props) => {
 
   return (
     <div className="public-lists">
-      <h1>Add a List</h1>
-      <span>
-        List Name:{" "}
-        <input
-          maxLength="100"
-          type="text"
-          id="listName"
-          placeholder="List Name"
-          onChange={(e) => setnewListName(e.target.value)}
-        />
-        Description:{" "}
-        <input
-          maxLength="500"
-          type="text"
-          id="description"
-          placeholder="optional"
-          onChange={(e) => setDes(e.target.value)}
-        />
-        Hero IDs:{" "}
-        <input
-          maxLength="500"
-          type="text"
-          id="heroids"
-          placeholder="ex. 18,9,40"
-          onChange={(e) =>
-            e.target.value !== ""
-              ? setheroIDs(e.target.value.split(",").map(Number))
-              : setheroIDs([])
-          }
-        />
+      <h1 id="info-title">Add a list</h1>
+      <div className="add-list-cont">
+        <div className="add-list-inner">
+          <p>List Name:</p>
+          <input
+            maxLength="100"
+            type="text"
+            id="listName"
+            placeholder="List Name"
+            onChange={(e) => setnewListName(e.target.value)}
+          />
+        </div>
+        <div className="add-list-inner">
+          <p>Description:</p>
+          <input
+            maxLength="500"
+            type="text"
+            id="description"
+            placeholder="optional"
+            onChange={(e) => setDes(e.target.value)}
+          />
+        </div>
+        <div className="add-list-inner">
+          <p>Hero IDs:</p>
+          <input
+            maxLength="500"
+            type="text"
+            id="heroids"
+            placeholder="ex. 18,9,40"
+            onChange={(e) =>
+              e.target.value !== ""
+                ? setheroIDs(e.target.value.split(",").map(Number))
+                : setheroIDs([])
+            }
+          />
+        </div>
         <select
           id="ispublic"
           onChange={(e) => setPublic(Number(e.target.value))}
@@ -331,10 +337,16 @@ const SavedLists = (props) => {
             Public
           </option>
         </select>
-        <button onClick={newList}>Add List</button>
+        <button
+          style={{ marginTop: "0.5em" }}
+          className="submit-btn"
+          onClick={newList}
+        >
+          Add List
+        </button>
         <p id="alertText">{alertText}</p>
-      </span>
-      <h1>My Hero Lists</h1>
+      </div>
+      <h1 id="info-title">My Hero Lists</h1>
 
       {heroLists !== null && heroLists !== undefined && (
         <div>
@@ -350,6 +362,7 @@ const SavedLists = (props) => {
                   {expandedResults.includes(index) ? ` ▲` : " ▼"}
                 </div>
                 <button
+                  className="savedList-btn submit-btn"
                   onClick={() => {
                     setListEdit(index);
                   }}
@@ -357,7 +370,12 @@ const SavedLists = (props) => {
                   {isEditing && editIndex == index ? "Cancel Edit" : "Edit"}
                 </button>
                 <div className="confim-delete">
-                  <button onClick={() => setConfirmVis(true)}>Delete</button>
+                  <button
+                    className="savedList-btn submit-btn"
+                    onClick={() => setConfirmVis(true)}
+                  >
+                    Delete
+                  </button>
                   {isConfirmVis && (
                     <div className="confirm">
                       <p>Are you sure you want to delete this item?</p>
@@ -455,7 +473,12 @@ const SavedLists = (props) => {
                   ) : (
                     <></>
                   )}
-                  <button onClick={() => submitEdit(list)}>Submit</button>
+                  <button
+                    className="savedList-btn submit-btn"
+                    onClick={() => submitEdit(list)}
+                  >
+                    Submit
+                  </button>
                   {editWarning}
                 </div>
               ) : (

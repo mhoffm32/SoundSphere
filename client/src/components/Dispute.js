@@ -68,65 +68,80 @@ const Dispute = (props) => {
 
   return (
     <div className="dispute-form">
-      <h1>Dispute, Infringement, Takedown Log</h1>
-      <span>
-        Request Type:
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          <option key="1" value="takedown">
-            Takedown
-          </option>
-          <option key="2" value="infringement">
-            Infringement
-          </option>
-          <option key="3" value="dispute">
-            Dispute
-          </option>
-        </select>
-      </span>
-      <span>
-        Year:
-        <select onChange={(e) => setYear(e.target.value)}>
-          <option key="1" value="2023">
-            2023
-          </option>
-          <option key="2" value="2024">
-            2024
-          </option>
-          <option key="3" value="2025">
-            2025
-          </option>
-        </select>
-      </span>
-      <span>
-        Month:
-        <select id="day" name="day" onChange={(e) => setMonth(e.target.value)}>
-          {generateOptions(12)}
-        </select>
-      </span>
-      <span>
-        Day:
-        <select id="day" name="day" onChange={(e) => setDay(e.target.value)}>
-          {generateOptions(31)}
-        </select>
-      </span>
-      <span>
-        Review details:
-        <input
-          type="text"
-          maxLength="500"
-          onChange={(e) => setReview(e.target.value)}
-        />
-        Notes:
-        <input
-          type="text"
-          maxLength="500"
-          onChange={(e) => setNotes(e.target.value)}
-        />
-        <button id="privacyPolicy" onClick={logDispute}>
-          Submit
-        </button>
-      </span>
-      <p>{text}</p>
+      <h1 id="info-title">Dispute, Infringement, Takedown Log</h1>
+      <div className="infringe-container">
+        <p>
+          <p className="label-infringe">Request Type:</p>
+          <select value={type} onChange={(e) => setType(e.target.value)}>
+            <option key="1" value="takedown">
+              Takedown
+            </option>
+            <option key="2" value="infringement">
+              Infringement
+            </option>
+            <option key="3" value="dispute">
+              Dispute
+            </option>
+          </select>
+        </p>
+        <p>
+          <p className="label-infringe">Year:</p>
+
+          <select onChange={(e) => setYear(e.target.value)}>
+            <option key="1" value="2023">
+              2023
+            </option>
+            <option key="2" value="2024">
+              2024
+            </option>
+            <option key="3" value="2025">
+              2025
+            </option>
+          </select>
+        </p>
+        <p>
+          <p className="label-infringe">Month:</p>
+          <select
+            id="day"
+            name="day"
+            onChange={(e) => setMonth(e.target.value)}
+          >
+            {generateOptions(12)}
+          </select>
+        </p>
+        <p>
+          <p className="label-infringe">Day:</p>
+          <select id="day" name="day" onChange={(e) => setDay(e.target.value)}>
+            {generateOptions(31)}
+          </select>
+        </p>
+        <p>
+          <p className="label-infringe">Review details::</p>
+          <input
+            type="text"
+            maxLength="500"
+            onChange={(e) => setReview(e.target.value)}
+          />
+        </p>
+        <p>
+          <p className="label-infringe">Notes:</p>
+          <input
+            type="text"
+            maxLength="500"
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </p>
+        <p>
+          <button
+            className="submit-btn"
+            id="privacyPolicy"
+            onClick={logDispute}
+          >
+            Submit
+          </button>
+        </p>
+        <p>{text}</p>
+      </div>
     </div>
   );
 };

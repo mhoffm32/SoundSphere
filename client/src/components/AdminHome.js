@@ -105,79 +105,89 @@ const AdminHome = (props) => {
   };
 
   return (
-    <div>
-      <h2>{state == "admin" ? <>Admin Tools</> : <>Hero Management</>}</h2>
-      <button
-        value="admin"
-        style={{
-          backgroundColor: state === "admin" ? "rgb(153,80,153)" : "",
-          fontWeight: state === "admin" ? "bold" : "normal",
-        }}
-        onClick={(e) => setState(e.target.value)}
-      >
-        Admin Tools
-      </button>
-      <button
-        value="general"
-        style={{
-          backgroundColor: state === "general" ? "rgb(153,80,153)" : "",
-          fontWeight: state === "general" ? "bold" : "normal",
-        }}
-        onClick={(e) => setState(e.target.value)}
-      >
-        Hero Management
-      </button>
+    <div className="content2">
+      <h2 id="info-title">
+        {state == "admin" ? <>Admin Tools</> : <>Hero Management</>}
+      </h2>
+      <div className="button-box">
+        <button
+          className="default-btn"
+          value="admin"
+          style={{
+            backgroundColor: state === "admin" ? "rgb(153,80,153)" : "",
+            fontWeight: state === "admin" ? "bold" : "normal",
+          }}
+          onClick={(e) => setState(e.target.value)}
+        >
+          Admin Tools
+        </button>
+        <button
+          className="default-btn"
+          value="general"
+          style={{
+            backgroundColor: state === "general" ? "rgb(153,80,153)" : "",
+            fontWeight: state === "general" ? "bold" : "normal",
+          }}
+          onClick={(e) => setState(e.target.value)}
+        >
+          Hero Management
+        </button>
+      </div>
       <div>
         {state == "admin" ? (
           <>
-            <button
-              value="users"
-              style={{
-                backgroundColor:
-                  adminState === "users" ? "rgb(20,204,204)" : "",
-                fontWeight: adminState === "users" ? "bold" : "normal",
-              }}
-              onClick={getUsers}
-            >
-              {" "}
-              Manage Users{" "}
-            </button>
-            {user.id == 108 ? (
-              <>
-                <button
-                  value="policies"
-                  style={{
-                    backgroundColor:
-                      adminState === "policies" ? "rgb(20,204,204)" : "",
-                    fontWeight: adminState === "policies" ? "bold" : "normal",
-                  }}
-                  onClick={(e) => setAdminState(e.target.value)}
-                >
-                  Manage Policies{" "}
-                </button>
-                <button
-                  value="dcma"
-                  style={{
-                    backgroundColor:
-                      adminState === "dcma" ? "rgb(20,204,204)" : "",
-                    fontWeight: adminState === "dcma" ? "bold" : "normal",
-                  }}
-                  onClick={(e) => setAdminState(e.target.value)}
-                >
-                  {" "}
-                  DCMA Management{" "}
-                </button>{" "}
-              </>
-            ) : (
-              <></>
-            )}
+            <div className="button-box">
+              <button
+                value="users"
+                className="default-btn"
+                style={{
+                  backgroundColor:
+                    adminState === "users" ? "rgb(20,204,204)" : "",
+                  fontWeight: adminState === "users" ? "bold" : "normal",
+                }}
+                onClick={getUsers}
+              >
+                {" "}
+                Manage Users{" "}
+              </button>
+              {user.id == 108 ? (
+                <>
+                  <button
+                    value="policies"
+                    className="default-btn"
+                    style={{
+                      backgroundColor:
+                        adminState === "policies" ? "rgb(20,204,204)" : "",
+                      fontWeight: adminState === "policies" ? "bold" : "normal",
+                    }}
+                    onClick={(e) => setAdminState(e.target.value)}
+                  >
+                    Manage Policies{" "}
+                  </button>
+                  <button
+                    value="dcma"
+                    className="default-btn"
+                    style={{
+                      backgroundColor:
+                        adminState === "dcma" ? "rgb(20,204,204)" : "",
+                      fontWeight: adminState === "dcma" ? "bold" : "normal",
+                    }}
+                    onClick={(e) => setAdminState(e.target.value)}
+                  >
+                    {" "}
+                    DCMA Management{" "}
+                  </button>
+                </>
+              ) : (
+                <></>
+              )}
+            </div>
             {adminState == "users" ? (
               <>
                 {users_list !== null && users_list !== undefined && (
                   <ul>
                     {users_list.map((user) => (
                       <li key={user.userID}>
-                        {" "}
                         ID:{user.userID}, Nickname: {user.nName}, Email:{" "}
                         {user.email}
                         <div id="user-btns">
@@ -234,9 +244,12 @@ const AdminHome = (props) => {
                   onChange={(e) => setlPriv(e.target.value)}
                   maxLength="2000"
                 ></input>
-                <button id="privacyPolicy" onClick={() => setPriv(lpriv)}>
-                  {" "}
-                  Submit Edits{" "}
+                <button
+                  className="admin-sbmt submit-btn"
+                  id="privacyPolicy"
+                  onClick={() => setPriv(lpriv)}
+                >
+                  Submit Edits
                 </button>
                 <h2>Use Policy</h2>
                 <input
@@ -246,6 +259,7 @@ const AdminHome = (props) => {
                 ></input>
                 <button
                   id="usePolicy"
+                  className="admin-sbmt submit-btn"
                   maxLength="2000"
                   onClick={() => setUse(luse)}
                 >
@@ -257,7 +271,11 @@ const AdminHome = (props) => {
                   maxLength="2000"
                   onChange={(e) => setlDcma(e.target.value)}
                 ></input>
-                <button id="dcmaPolicy" onClick={() => setDcma(ldcma)}>
+                <button
+                  className="admin-sbmt submit-btn"
+                  id="dcmaPolicy"
+                  onClick={() => setDcma(ldcma)}
+                >
                   Submit Edits
                 </button>
               </>
@@ -268,8 +286,9 @@ const AdminHome = (props) => {
             {adminState == "dcma" ? (
               <>
                 <br />
-                <h2>DCMA Management </h2>
+                <h2 id="info-title">DCMA Management </h2>
                 <button
+                  className="dmca-btn submit-btn"
                   onClick={() => {
                     setViewingP(!viewingP);
                   }}
