@@ -428,3 +428,8 @@ h4{
     margin-left: 1.5em; 
     padding-left: 1em; 
 }
+
+#managePass{
+    align-items: center;
+    transform: translateY(100px);
+}

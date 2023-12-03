@@ -110,29 +110,6 @@ const AdminHome = (props) => {
     }
   };
 
-  const changePass = async () => {
-    setWarning("");
-    if (oldPass && newPass) {
-      const response = await fetch(
-        `/api/users/change-pass/${user.id}/${oldPass}/${newPass}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      const data = await response.json();
-      if (data.status !== 200) {
-        setWarning(data.message);
-      } else {
-        setWarning("Password Successfully changed.");
-      }
-    } else {
-      setWarning("Please enter both current password and new.");
-    }
-  };
-
   const setPriv1 = () => {
     setPriv(lpriv);
     setPtext("Privacy & Security Policy successfully changed.");
@@ -148,15 +125,6 @@ const AdminHome = (props) => {
 
   return (
     <div className="content2">
-      <button
-        id="manage-acc-admin"
-        onClick={() =>
-          state == "pass" ? setState("general") : setState("pass")
-        }
-      >
-        {state == "pass" ? <>Return</> : <>Manage Account</>}
-      </button>
-
       {state != "pass" ? (
         <div>
           <h2 id="info-title">
@@ -449,34 +417,6 @@ const AdminHome = (props) => {
             <></>
           )}
         </div>
-      ) : (
-        <></>
-      )}
-      {state == "pass" ? (
-        <>
-          <p>User ID: {user.id} </p>
-          <p>Nickname: {user.nName}</p>
-          <p>User Email: {user.email}</p>
-          <br />
-          <span>
-            Current Password:{" "}
-            <input
-              maxLength="50"
-              type="text"
-              id="oldPass"
-              onChange={(e) => setOldPass(e.target.value)}
-            />
-            New Password:{" "}
-            <input
-              maxLength="50"
-              type="text"
-              id="newPass"
-              onChange={(e) => setNewPass(e.target.value)}
-            />
-          </span>
-          <button onClick={changePass}>Change Password</button>
-          <p>{warningText}</p>
-        </>
       ) : (
         <></>
       )}

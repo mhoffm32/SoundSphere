@@ -14,20 +14,26 @@ function App() {
   const [state, setState] = useState("info");
   const [current_user, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState("");
-
+  const [manageText, setManageText] = useState("Manage Account");
   const [pState, setPState] = useState("");
+  const [state2, setState2] = useState("");
   const { token, setToken } = useAuth();
   const { priv } = useAuth();
   const { dcma } = useAuth();
   const { use } = useAuth();
   const [lastState, setLastState] = useState("");
+  const [oldPass, setOldPass] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [warningText, setWarning] = useState("");
 
-  console.log(priv);
   let loginText = "Log In";
 
-  if (state == "loggedin") {
+  if (state == "loggedin" || state == "manage") {
     loginText = "Log Out";
   }
+  useEffect(() => {
+    setWarning("");
+  }, [state]);
 
   const handleState = (state1) => {
     setState(state1);
@@ -52,7 +58,7 @@ function App() {
   };
 
   function onLoginClick() {
-    if (state == "loggedin") {
+    if (state == "loggedin" || state == "manage") {
       setState("info");
       loginText = "Log In";
       setCurrentUser(null);
@@ -62,6 +68,29 @@ function App() {
       loginText = "Log Out";
     }
   }
+
+  const changePass = async () => {
+    setWarning("");
+    if (oldPass && newPass) {
+      const response = await fetch(
+        `/api/users/change-pass/${current_user.id}/${oldPass}/${newPass}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.status !== 200) {
+        setWarning(data.message);
+      } else {
+        setWarning("Password Successfully changed.");
+      }
+    } else {
+      setWarning("Please enter both current password and new.");
+    }
+  };
 
   const handleLogin = (res) => {
     console.log("Handling login \n");
@@ -140,8 +169,8 @@ function App() {
               onClick={onLoginClick}
               style={{
                 backgroundColor:
-                  state === "loggedin"
-                    ? "rgb(242, 126, 132)"
+                  state === "loggedin" || state == "manage"
+                    ? "rgb(200, 200, 200)"
                     : "rgb(129, 199, 146)",
                 fontWeight: state === "login" ? "bold" : "bold",
                 marginRight: "1em",
@@ -149,8 +178,67 @@ function App() {
             >
               {loginText}
             </button>
+            {state === "loggedin" || state === "manage" ? (
+              <>
+                <button
+                  onClick={() => {
+                    state == "loggedin"
+                      ? setState("manage")
+                      : setState("loggedin");
+                  }}
+                  style={{
+                    backgroundColor: "rgb(200, 100, 200)",
+                    fontWeight: state === "login" ? "bold" : "bold",
+                    marginRight: "1em",
+                  }}
+                >
+                  {state == "loggedin" ? <>Manage Account</> : <>Return</>}
+                </button>
+                {state == "manage" ? (
+                  <div id="managePass">
+                    <p>User ID: {current_user.id} </p>
+                    <p>Nickname: {current_user.nName}</p>
+                    <p>User Email: {current_user.email}</p>
+                    <br />
+                    <span>
+                      Current Password:{" "}
+                      <input
+                        maxLength="50"
+                        type="text"
+                        id="oldPass"
+                        onChange={(e) => setOldPass(e.target.value)}
+                      />
+                      New Password:{" "}
+                      <input
+                        maxLength="50"
+                        type="text"
+                        id="newPass"
+                        onChange={(e) => setNewPass(e.target.value)}
+                      />
+                    </span>
+                    <button
+                      style={{
+                        backgroundColor: "rgb(200, 200, 200)",
+                        fontWeight: state === "login" ? "bold" : "bold",
+                        marginRight: "1em",
+                      }}
+                      onClick={changePass}
+                    >
+                      Change Password
+                    </button>
+                    <p>{warningText}</p>
+                  </div>
+                ) : (
+                  <></>
+                )}
+              </>
+            ) : (
+              <></>
+            )}
 
-            {current_user !== null && current_user.id !== 0 ? (
+            {current_user !== null &&
+            current_user.id !== 0 &&
+            state != "manage" ? (
               <>
                 Welcome, {current_user.nName}{" "}
                 {current_user.admin ? <>(Admin)</> : <></>}
@@ -162,9 +250,22 @@ function App() {
         ) : (
           <></>
         )}
-        {state !== "info" && state !== "loggedin" && state != "policies" ? (
+        {state !== "info" &&
+        state !== "loggedin" &&
+        state != "policies" &&
+        state != "manage" ? (
           <div className="login-btn-top">
-            <button onClick={returnPage}> Return </button>
+            <button
+              onClick={returnPage}
+              style={{
+                backgroundColor: "rgb(211, 211, 211)",
+                fontWeight: state === "login" ? "bold" : "bold",
+                marginRight: "1em",
+              }}
+            >
+              {" "}
+              Return{" "}
+            </button>
           </div>
         ) : (
           <></>
