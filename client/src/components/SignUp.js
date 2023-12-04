@@ -76,6 +76,10 @@ const SignUp = ({ onSignup }) => {
           setwText("Passwords dont match.");
         }
       }
+    } else if (email && !password) {
+      setwText("Please enter password.");
+    } else if (!email && password) {
+      setwText("Please enter email.");
     } else {
       setwText("Please enter email, first name, last name, password.");
     }

@@ -274,6 +274,14 @@ const PublicLists = (props) => {
                                             </span>{" "}
                                             {review.comment}
                                           </div>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Date:
+                                            </span>
+                                            {review.editDate
+                                              ? review.editDate
+                                              : "n/a"}
+                                          </div>
                                         </>
                                       ) : (
                                         <></>
@@ -298,6 +306,14 @@ const PublicLists = (props) => {
                                               Comment:
                                             </span>{" "}
                                             {review.comment}
+                                          </div>
+                                          <div className="review-item">
+                                            <span className="rev-label">
+                                              Date:
+                                              {review.editDate
+                                                ? review.editDate
+                                                : "n/a"}
+                                            </span>{" "}
                                           </div>
                                           <button
                                             onClick={() =>

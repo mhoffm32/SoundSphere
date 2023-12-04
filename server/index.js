@@ -103,7 +103,7 @@ router5.get("/get-policies", (req, res) => {
       } else {
         res.status(200).json({
           privacy: results[0].privacy,
-          use: results[0].accUse,
+          use: results[0].accse,
           dcma: results[0].dcma,
         });
       }

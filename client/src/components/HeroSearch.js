@@ -102,9 +102,10 @@ const HeroSearch = ({ choice }) => {
                   className="result-header"
                   onClick={() => toggleExpansion(index)}
                 >
+                  <h3>Name: {result.name}</h3>
                   <h3>
-                    Name: {result.name} | Publisher: {result.Publisher}{" "}
-                    {expandedResults.includes(index) ? ` ▲` : " ▼"}
+                    Publisher: {result.Publisher}{" "}
+                    {expandedResults.includes(index) ? `    ▲` : "     ▼"}
                   </h3>
                 </div>
                 {expandedResults.includes(index) && (
@@ -132,7 +133,7 @@ const HeroSearch = ({ choice }) => {
                         );
                       }}
                     >
-                      Search on DDG
+                      Search
                     </button>
                   </div>
                 )}
