@@ -54,7 +54,9 @@ const Login = ({ onLogin }) => {
 
   async function getUser() {
     try {
-      const response = await fetch(`/api/users/get_user/${email}/${password}`);
+      const response = await fetch(
+        `/api/express/users/get_user/${email}/${password}`
+      );
       const data = await response.json();
       return data;
     } catch (error) {

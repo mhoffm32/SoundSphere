@@ -14,9 +14,6 @@ const AdminHome = (props) => {
   const [pText, setPtext] = useState("");
   const [uText, setUtext] = useState("");
   const [dText, setDtext] = useState("");
-  const [oldPass, setOldPass] = useState("");
-  const [newPass, setNewPass] = useState("");
-  const [warningText, setWarning] = useState("");
 
   const { priv, setPriv, use, setUse, dcma, setDcma, token, setToken } =
     useAuth();
