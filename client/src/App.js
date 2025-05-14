@@ -4,19 +4,15 @@ import SignUp from "./components/SignUp";
 import Info from "./components/Info";
 import Home from "./components/Home";
 import AdminHome from "./components/AdminHome";
-import User from "./User";
 import "./App.css";
 import { useAuth } from "./AuthContext";
-import { jwtDecode } from "jwt-decode";
 
 //Page header will change to login/logout and site info
 function App() {
   const [state, setState] = useState("info");
   const [current_user, setCurrentUser] = useState(null);
   const [userType, setUserType] = useState("");
-  const [manageText, setManageText] = useState("Manage Account");
   const [pState, setPState] = useState("");
-  const [state2, setState2] = useState("");
   const { token, setToken } = useAuth();
   const { priv } = useAuth();
   const { dcma } = useAuth();
@@ -51,6 +47,7 @@ function App() {
     setState("policies");
     setPState("dcma");
   };
+
   const getSecurity = () => {
     setLastState(state);
     setState("policies");
@@ -291,15 +288,15 @@ function App() {
         {state == "user" ? <Home user={current_user} /> : <></>}
         {state == "user" ? <Home user={current_user} /> : <></>}
         <div id="policies">
-          <button className="footer-btn" onClick={getSecurity}>
+          <a className="footer-btn" onClick={getSecurity}>
             Security & Privacy Policy
-          </button>
-          <button className="footer-btn" onClick={getUse}>
+          </a>
+          <a className="footer-btn" onClick={getUse}>
             Acceptable Use Policy{" "}
-          </button>
-          <button className="footer-btn" onClick={getDCMA}>
+          </a>
+          <a className="footer-btn" onClick={getDCMA}>
             DCMA notice & takedown Policy{" "}
-          </button>
+          </a>
         </div>
       </div>
     </div>

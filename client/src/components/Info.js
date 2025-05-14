@@ -9,17 +9,7 @@ const Info = (props) => {
   return (
     <div className="info">
       <h1 id="info-title">HeroWorld</h1>
-      <p id="blurb">
-        Welcome to the superhero information website. Here you can search
-        through our database of super heroes and view detailed descriptions
-        including name, gener, eye color, race, hair color, height, publisher,
-        skin color, alignment, and weight. As an authenticated user with a
-        logged in account, you will be given the ability to create your own
-        custom lists filled with your own choices of favorite super heroes!
-        These custom lists can be made public to display for other super hero
-        fans or can be made private for your own personal viewing. Signup for
-        free today!{" "}
-      </p>
+      <p id="blurb">I AM BLIRB</p>
       <button
         className="default-btn"
         value="signup"

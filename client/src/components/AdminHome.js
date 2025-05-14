@@ -171,38 +171,31 @@ const AdminHome = (props) => {
                   {" "}
                   Manage Users{" "}
                 </button>
-                {user.id == 108 ? (
-                  <>
-                    <button
-                      value="policies"
-                      className="default-btn"
-                      style={{
-                        backgroundColor:
-                          adminState === "policies" ? "rgb(20,204,204)" : "",
-                        fontWeight:
-                          adminState === "policies" ? "bold" : "normal",
-                      }}
-                      onClick={(e) => setAdminState(e.target.value)}
-                    >
-                      Manage Policies{" "}
-                    </button>
-                    <button
-                      value="dcma"
-                      className="default-btn"
-                      style={{
-                        backgroundColor:
-                          adminState === "dcma" ? "rgb(20,204,204)" : "",
-                        fontWeight: adminState === "dcma" ? "bold" : "normal",
-                      }}
-                      onClick={(e) => setAdminState(e.target.value)}
-                    >
-                      {" "}
-                      DCMA Management{" "}
-                    </button>
-                  </>
-                ) : (
-                  <></>
-                )}
+                <button
+                  value="policies"
+                  className="default-btn"
+                  style={{
+                    backgroundColor:
+                      adminState === "policies" ? "rgb(20,204,204)" : "",
+                    fontWeight: adminState === "policies" ? "bold" : "normal",
+                  }}
+                  onClick={(e) => setAdminState(e.target.value)}
+                >
+                  Manage Policies{" "}
+                </button>
+                <button
+                  value="dcma"
+                  className="default-btn"
+                  style={{
+                    backgroundColor:
+                      adminState === "dcma" ? "rgb(20,204,204)" : "",
+                    fontWeight: adminState === "dcma" ? "bold" : "normal",
+                  }}
+                  onClick={(e) => setAdminState(e.target.value)}
+                >
+                  {" "}
+                  DCMA Management{" "}
+                </button>
               </div>
               {adminState == "users" ? (
                 <>

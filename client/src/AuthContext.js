@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }) => {
   }, [dcma]);
 
   const updatePolicy = async (newPolicy) => {
+    //console.log("MADDY CALLED");
     const send = {
       method: "POST",
       headers: {
@@ -64,6 +65,7 @@ export const AuthProvider = ({ children }) => {
   const getPolicies = async () => {
     try {
       const response = await fetch("/api/policy/get-policies");
+
       const res = await response.json();
       if (!response.ok) {
         console.error(

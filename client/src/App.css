@@ -244,16 +244,11 @@ h4{
 }
 
 .footer-btn {
-    margin: 0.25em 1em;
-  background: #5E5DF0;
-  border-radius: 0px;
-  box-shadow: #5E5DF0 0 10px 20px -10px;
-  box-sizing: border-box;
   color: #FFFFFF;
   cursor: pointer;
   font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 24px;
   opacity: 1;
   outline: 0 solid transparent;

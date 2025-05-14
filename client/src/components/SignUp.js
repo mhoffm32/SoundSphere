@@ -12,8 +12,6 @@ const SignUp = ({ onSignup }) => {
   const [localstate, setstate] = useState("signup");
   const [verified, setVerified] = useState(false);
   const [vText, setVText] = useState("");
-  const [vCode, setVCode] = useState(0);
-  const [vStatus, setvStatus] = useState("Waiting for Verification...");
   const [warningText, setwText] = useState("");
 
   useEffect(() => {
@@ -90,7 +88,7 @@ const SignUp = ({ onSignup }) => {
     setwText("");
 
     try {
-      const response = await fetch(`/api/check-verified/${email}`);
+      const response = await fetch(`/api/email/check-verified/${email}`);
       const data = await response.json();
 
       if (response.ok) {
