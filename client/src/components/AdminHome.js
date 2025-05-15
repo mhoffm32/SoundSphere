@@ -31,7 +31,7 @@ const AdminHome = (props) => {
   async function getUsers() {
     setAdminState("users");
     try {
-      const response = await fetch(`/api/users/users_list`, {
+      const response = await fetch(`http://localhost:5001/users/users_list`, {
         method: "GET",
         headers: {
           Authorization: token,
@@ -60,7 +60,7 @@ const AdminHome = (props) => {
   const adminStatus = async (id, status) => {
     try {
       const response = await fetch(
-        `/api/users/admin-user/${id}/${Number(!status)}`,
+        `http://localhost:5001/users/admin-user/${id}/${Number(!status)}`,
         {
           method: "GET",
           headers: {
@@ -85,7 +85,7 @@ const AdminHome = (props) => {
   const accountStatus = async (id, status) => {
     try {
       const response = await fetch(
-        `/api/users/disable-user/${id}/${Number(!status)}`,
+        `http://localhost:5001/users/disable-user/${id}/${Number(!status)}`,
         {
           method: "GET",
           headers: {

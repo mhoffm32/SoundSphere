@@ -2,41 +2,52 @@ const express = require("express");
 const router = express.Router();
 const { sanitize } = require("../utils/sanitizer");
 const { unverifiedUsers } = require("./unverifiedUsers");
-// Temporary in-memory storage (ideally move to DB)
-let currUserVerified = null;
-let connection; // will be set from server.js
+const { getDb } = require("../config/mongo");
 
-router.get("/verify-email/:token/:code", (req, res) => {
+let currUserVerified = null;
+let db;
+
+// Called from index.js once DB is connected
+function setClient() {
+  db = getDb();
+}
+
+function getDatabase() {
+  if (!db) {
+    throw new Error("MongoDB not connected");
+  }
+  return db;
+}
+
+router.get("/verify-email/:token/:code", async (req, res) => {
   let token = decodeURIComponent(req.params.token).split("/").pop();
   const code = Number(req.params.code);
 
   const userToVerify = unverifiedUsers.find(
     (u) => u.token === token && u.code === code
   );
+
   if (userToVerify) {
     currUserVerified = userToVerify.user;
 
-    //unverifiedUsers.splice(index, 1);
+    try {
+      const collection = getDatabase().collection("Users");
+      const result = await collection.insertOne({
+        nName: userToVerify.user.nName,
+        email: userToVerify.user.email,
+        password: userToVerify.user.password,
+      });
 
-    const sql = "INSERT INTO Users(nName, email, password) VALUES (?,?,?)";
-    const values = [
-      userToVerify.user.nName,
-      userToVerify.user.email,
-      userToVerify.user.password,
-    ];
+      currUserVerified.userID = result.insertedId;
 
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        res.status(409).json({ error: error.message });
-      } else {
-        currUserVerified.userID = results.insertId;
-        res
-          .status(200)
-          .json(
-            `User with email ${currUserVerified.email} verified successfully!`
-          );
-      }
-    });
+      res
+        .status(200)
+        .json(
+          `User with email ${currUserVerified.email} verified successfully!`
+        );
+    } catch (error) {
+      res.status(409).json({ error: error.message });
+    }
   } else {
     res.status(404).json({
       message: `Invalid verification token or code`,
@@ -59,22 +70,4 @@ router.get("/check-verified/:email", (req, res) => {
   }
 });
 
-// Allow setting connection from server.js
-// router.setConnection = (conn) => {
-//   connection = conn;
-// };
-
-let client;
-let db;
-
-router.setClient = (mongoClient) => {
-  client = mongoClient;
-  db = client.db("SoundSphere"); // Or any DB name you prefer
-};
-
-router.pushUnverifiedUser = (userObj) => {
-  console.log("im being called");
-  unverifiedUsers.push(userObj);
-};
-
-module.exports = router;
+module.exports = { router, setClient };

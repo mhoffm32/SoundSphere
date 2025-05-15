@@ -27,7 +27,7 @@ const HeroSearch = ({ choice }) => {
   const getResults = async () => {
     try {
       const response = await fetch(
-        `/api/hero/search/${
+        `http://localhost:5001/hero/search/${
           hero_name ? encodeURIComponent(hero_name.trim()) : "none"
         }/${selectedRace ? encodeURIComponent(selectedRace.trim()) : "none"}/${
           selectedPower ? encodeURIComponent(selectedPower.trim()) : "none"

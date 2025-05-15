@@ -48,7 +48,7 @@ const PublicLists = (props) => {
 
   const getLists = async () => {
     try {
-      const response = await fetch(`/api/lists/public-lists`);
+      const response = await fetch(`http://localhost:5001/lists/public-lists`);
       const listObj = await response.json();
 
       if (!response.ok) {
@@ -84,7 +84,10 @@ const PublicLists = (props) => {
         body: JSON.stringify(newReview), // Convert the object to a JSON string
       };
 
-      const response = await fetch("/api/lists/add-review", send);
+      const response = await fetch(
+        "http://localhost:5001/lists/add-review",
+        send
+      );
       const res = await response.json();
 
       if (!response.ok) {
@@ -115,7 +118,10 @@ const PublicLists = (props) => {
         body: JSON.stringify(info), // Convert the object to a JSON string
       };
 
-      const response = await fetch("/api/lists/manage-review", send);
+      const response = await fetch(
+        "http://localhost:5001/lists/manage-review",
+        send
+      );
       const res = await response.json();
 
       if (!response.ok) {

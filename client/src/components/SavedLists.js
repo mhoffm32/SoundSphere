@@ -62,13 +62,16 @@ const SavedLists = (props) => {
 
   const getLists = async () => {
     try {
-      const response = await fetch(`/api/lists/saved-lists/${user.id}`, {
-        method: "GET",
-        headers: {
-          Authorization: token,
-        },
-      });
-      //const response = await fetch(`/api/lists/saved-lists/${user.id}`);
+      const response = await fetch(
+        `http://localhost:5001/lists/saved-lists/${user.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      //const response = await fetch(`http://localhost:5001/lists/saved-lists/${user.id}`);
       const lis = await response.json();
 
       if (!response.ok) {
@@ -152,7 +155,10 @@ const SavedLists = (props) => {
         body: JSON.stringify(newList),
       };
 
-      const response = await fetch("/api/lists/new-list", send);
+      const response = await fetch(
+        "http://localhost:5001/lists/new-list",
+        send
+      );
       const res = await response.json();
 
       if (!response.ok) {
@@ -173,7 +179,7 @@ const SavedLists = (props) => {
   const deleteList = async (list) => {
     setConfirmVis(false);
     const response = await fetch(
-      `/api/lists/delete-list/${user.id}/${list.ListName}`,
+      `http://localhost:5001/lists/delete-list/${user.id}/${list.ListName}`,
       {
         method: "GET",
         headers: {
@@ -262,7 +268,7 @@ const SavedLists = (props) => {
       body: JSON.stringify(edits),
     };
 
-    const response = await fetch("/api/lists/edit-list", send);
+    const response = await fetch("http://localhost:5001/lists/edit-list", send);
 
     const res = await response.json();
 

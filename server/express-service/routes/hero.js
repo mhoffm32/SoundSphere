@@ -34,29 +34,6 @@ router.get("/powers", (req, res) => {
   }
 });
 
-// Other routes as before...
-
-// Default route - sends all hero info data
-// router.get("/", (req, res) => {
-//   if (hero_info) {
-//     res.json(hero_info);
-//   } else {
-//     res.status(500).send("JSON data for info is not available");
-//   }
-// });
-
-// // Get all powers
-// router.get("/powers", (req, res) => {
-//   if (power_list) {
-//     const powers = Object.keys(power_list).filter(
-//       (prop) => prop !== "hero_names"
-//     );
-//     res.json([...new Set(powers)]);
-//   } else {
-//     res.status(500).send("JSON data for powers is not available");
-//   }
-// });
-
 // Get all races
 router.get("/races", (req, res) => {
   if (hero_info) {

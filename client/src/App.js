@@ -70,7 +70,7 @@ function App() {
     setWarning("");
     if (oldPass && newPass) {
       const response = await fetch(
-        `/api/users/change-pass/${current_user.id}/${oldPass}/${newPass}`,
+        `http://localhost:5001/users/change-pass/${current_user.id}/${oldPass}/${newPass}`,
         {
           method: "GET",
           headers: {

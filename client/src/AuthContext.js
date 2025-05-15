@@ -48,7 +48,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     try {
-      const response = await fetch("/api/policy/update-policy", send);
+      const response = await fetch(
+        "http://localhost:5001/policy/update-policy",
+        send
+      );
       const res = await response.json();
       if (!response.ok) {
         console.error(
@@ -64,7 +67,7 @@ export const AuthProvider = ({ children }) => {
 
   const getPolicies = async () => {
     try {
-      const response = await fetch("/api/policy/get-policies");
+      const response = await fetch("http://localhost:5001/policy/get-policies");
 
       const res = await response.json();
       if (!response.ok) {
