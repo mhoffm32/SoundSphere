@@ -1,77 +1,115 @@
-"""
-python_service.py
-This is a sample Python Flask service that you can customize with your specific Python libraries
-"""
-from flask import Flask, request, jsonify
+import os
+from flask import Flask, request, redirect, session, url_for, jsonify
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from dotenv import load_dotenv
 from flask_cors import CORS
-import numpy as np
-import pandas as pd
-# Import your specialized Python libraries here
-# import your_specialized_library
+from flask_session import Session
+import redis
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for development
 
-@app.route('/analyze', methods=['POST'])
-def analyze_data():
-    """Example endpoint that analyzes data using Python libraries"""
-    try:
-        # Get data from request
-        data = request.json
-        if not data or 'values' not in data:
-            return jsonify({'error': 'No data provided'}), 400
-            
-        # Convert to numpy array for processing
-        values = np.array(data['values'])
-        
-        # Example analysis (replace with your specific Python library functionality)
-        result = {
-            'mean': float(np.mean(values)),
-            'median': float(np.median(values)),
-            'std_dev': float(np.std(values)),
-            'min': float(np.min(values)),
-            'max': float(np.max(values))
-        }
-        
-        # Add any specialized processing with your Python library here
-        # result['specialized_analysis'] = your_specialized_library.process(values)
-        
-        return jsonify(result)
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+# Updated FRONTEND URL to match Spotify's allowed domains
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
 
+# CORS allows requests from your React frontend at 127.0.0.1
+CORS(app, origins=["http://127.0.0.1:3000"], supports_credentials=True)
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    """Example ML prediction endpoint"""
-    try:
-        # Get data from request
-        data = request.json
-        if not data or 'features' not in data:
-            return jsonify({'error': 'No features provided'}), 400
-            
-        # In a real app, you would use your ML model here
-        # Example dummy prediction
-        features = data['features']
-        # prediction = your_model.predict(features)
-        
-        # Dummy prediction for demonstration
-        prediction = sum(features) / len(features)
-        
-        return jsonify({
-            'prediction': float(prediction),
-            'confidence': 0.95  # Dummy confidence score
+app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
+
+app.config["SESSION_TYPE"] = "redis"
+app.config["SESSION_REDIS"] = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))
+Session(app)
+
+def create_spotify_oauth():
+    return SpotifyOAuth(
+        client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+        client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
+        redirect_uri="http://127.0.0.1:5000/api/callback",  # must match Spotify dashboard
+        scope="user-library-read user-read-private user-top-read"
+    )
+
+@app.route('/api/login')
+def login():
+    print("Login endpoint called")
+    sp_oauth = create_spotify_oauth()
+    auth_url = sp_oauth.get_authorize_url()
+    #print(jsonify({"auth_url": auth_url}).data)
+    return jsonify({"auth_url": auth_url})
+
+@app.route('/api/callback')
+def callback():
+    sp_oauth = create_spotify_oauth()
+    code = request.args.get('code')
+
+    token_info = sp_oauth.get_access_token(code)
+    session["token_info"] = token_info
+
+    return redirect(f"{FRONTEND_URL}/profile")
+
+@app.route('/api/user')
+def get_user():
+    token_info = session.get("token_info", None)
+    if not token_info:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    sp_oauth = create_spotify_oauth()
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+        session["token_info"] = token_info
+
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    user_profile = sp.current_user()
+
+    return jsonify({
+        "display_name": user_profile['display_name'],
+        "id": user_profile['id'],
+        "email": user_profile.get('email'),
+        "image": user_profile.get('images', [{}])[0].get('url') if user_profile.get('images') else None
+    })
+
+@app.route('/api/top-artists')
+def get_top_artists():
+    token_info = session.get("token_info", None)
+    if not token_info:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    sp_oauth = create_spotify_oauth()
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+        session["token_info"] = token_info
+
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+
+    time_range = request.args.get('time_range', 'medium_term')
+    limit = int(request.args.get('limit', 10))
+
+    top_artists_data = sp.current_user_top_artists(limit=limit, time_range=time_range)
+
+    top_artists = []
+    for artist in top_artists_data['items']:
+        top_artists.append({
+            'name': artist['name'],
+            'id': artist['id'],
+            'genres': artist['genres'],
+            'popularity': artist['popularity'],
+            'image': artist['images'][0]['url'] if artist['images'] else None,
+            'spotify_url': artist['external_urls']['spotify']
         })
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-@app.route('/health', methods=['GET'])
+    return jsonify(top_artists)
+
+@app.route('/api/logout')
+def logout():
+    session.clear()
+    return jsonify({"message": "Logged out successfully"})
+
+@app.route('/api/health')
 def health_check():
-    """Simple health check endpoint"""
-    return jsonify({'status': 'Python Service is healthy'})
+    return jsonify({"status": "Flask Spotify service is healthy"})
 
 if __name__ == '__main__':
-    # Run the Flask API on port 5000 by default
     app.run(debug=True, port=5000)

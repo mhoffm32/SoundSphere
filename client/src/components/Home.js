@@ -1,28 +1,17 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import UnauthHome from "./UnauthHome";
-import { useAuth } from "../AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const Home = (props) => {
-  const user = props.user;
-  const [state, setState] = useState("home");
+const Home = () => {
+  const navigate = useNavigate(); // 👈 Hook to programmatically navigate
+
+  const handleLoginClick = () => {
+    navigate("/spotify"); // 👈 Go to /spotify route
+  };
 
   return (
     <div>
-      {user ? (
-        <div>
-          {state == "home" ? (
-            <>
-              <h2>{user.nName}'s HeroWorld</h2>
-              <UnauthHome user={user} />
-            </>
-          ) : (
-            <></>
-          )}
-        </div>
-      ) : (
-        <p>User is undefined</p>
-      )}
+      <h1>Welcome to HeroWorld</h1>
+      <button onClick={handleLoginClick}>Login with Spotify</button>
     </div>
   );
 };
