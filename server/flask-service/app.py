@@ -16,7 +16,19 @@ app = Flask(__name__)
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
 
 # CORS allows requests from your React frontend at 127.0.0.1
-CORS(app, origins=["http://127.0.0.1:3000"], supports_credentials=True)
+CORS(app, origins=["http://127.0.0.1:3000", "http://localhost:4000"], supports_credentials=True)
+
+@app.before_request
+def log_request_info():
+    print("==== Incoming Request ====")
+    print(f"Method: {request.method}")
+    print(f"Path: {request.path}")
+    print(f"Headers:\n{dict(request.headers)}")
+    print(f"Query Params: {request.args}")
+    if request.method in ['POST', 'PUT', 'PATCH']:
+        print(f"Body: {request.get_data(as_text=True)}")
+    print("==========================")
+
 
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
 
@@ -28,11 +40,11 @@ def create_spotify_oauth():
     return SpotifyOAuth(
         client_id=os.getenv("SPOTIFY_CLIENT_ID"),
         client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
-        redirect_uri="http://127.0.0.1:5000/api/callback",  # must match Spotify dashboard
+        redirect_uri="http://127.0.0.1:4000/api/flask/callback",  # must match Spotify dashboard
         scope="user-library-read user-read-private user-top-read"
-    )
+     )
 
-@app.route('/api/login')
+@app.route("/login", methods=["GET"])
 def login():
     print("Login endpoint called")
     sp_oauth = create_spotify_oauth()
@@ -40,7 +52,13 @@ def login():
     #print(jsonify({"auth_url": auth_url}).data)
     return jsonify({"auth_url": auth_url})
 
-@app.route('/api/callback')
+
+
+# @app.route("/login", methods=["GET"])
+# def login():
+#     return "Login endpoint reached!"
+
+@app.route('/callback')
 def callback():
     sp_oauth = create_spotify_oauth()
     code = request.args.get('code')
@@ -50,7 +68,7 @@ def callback():
 
     return redirect(f"{FRONTEND_URL}/profile")
 
-@app.route('/api/user')
+@app.route('/user')
 def get_user():
     token_info = session.get("token_info", None)
     if not token_info:
@@ -71,7 +89,7 @@ def get_user():
         "image": user_profile.get('images', [{}])[0].get('url') if user_profile.get('images') else None
     })
 
-@app.route('/api/top-artists')
+@app.route('/top-artists')
 def get_top_artists():
     token_info = session.get("token_info", None)
     if not token_info:
@@ -102,14 +120,14 @@ def get_top_artists():
 
     return jsonify(top_artists)
 
-@app.route('/api/logout')
+@app.route('/logout')
 def logout():
     session.clear()
     return jsonify({"message": "Logged out successfully"})
 
-@app.route('/api/health')
+@app.route('/health')
 def health_check():
     return jsonify({"status": "Flask Spotify service is healthy"})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5002, host='0.0.0.0')

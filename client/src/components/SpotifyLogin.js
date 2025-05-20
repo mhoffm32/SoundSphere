@@ -9,9 +9,8 @@ function SpotifyLogin() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://127.0.0.1:5000/api/login", {
-        withCredentials: true,
-      });
+      const res = await fetch(`/api/flask/login`);
+      const response = await res.json();
 
       console.log(response);
 

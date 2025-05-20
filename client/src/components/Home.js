@@ -10,7 +10,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Welcome to HeroWorld</h1>
+      <h1>Welcome to SoundSphere</h1>
       <button onClick={handleLoginClick}>Login with Spotify</button>
     </div>
   );
