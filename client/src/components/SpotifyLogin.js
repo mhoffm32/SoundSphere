@@ -12,9 +12,9 @@ function SpotifyLogin() {
       const res = await fetch(`/api/flask/login`);
       const response = await res.json();
 
-      console.log(response);
+      console.log(response.auth_url);
 
-      //window.location.href = response.data.auth_url;
+      window.location.href = response.auth_url;
     } catch (error) {
       console.error("Error during Spotify login:", error);
       setLoading(false);

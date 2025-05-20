@@ -48,7 +48,7 @@ const Dispute = (props) => {
           body: JSON.stringify(newLog),
         };
 
-        const response = await fetch("http://localhost:5001/logs/newLog", send);
+        const response = await fetch("/api/express/logs/newLog", send);
         const res = await response.json();
 
         if (!response.ok) {

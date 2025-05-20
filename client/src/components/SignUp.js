@@ -40,7 +40,7 @@ const SignUp = ({ onSignup }) => {
       body: JSON.stringify(newUser), // Convert the object to a JSON string
     };
 
-    const response = await fetch("http://localhost:5001/users/add-user", send);
+    const response = await fetch("/api/express/users/add-user", send);
     if (response.status === 409) {
       setwText("Account under " + email + " already exists.");
     } else if (response.status === 200) {
@@ -89,7 +89,7 @@ const SignUp = ({ onSignup }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/email/check-verified/${email}`
+        `/api/express/email/check-verified/${email}`
       );
       const data = await response.json();
 

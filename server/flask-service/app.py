@@ -16,7 +16,7 @@ app = Flask(__name__)
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
 
 # CORS allows requests from your React frontend at 127.0.0.1
-CORS(app, origins=["http://127.0.0.1:3000", "http://localhost:4000"], supports_credentials=True)
+CORS(app, origins=["http://127.0.0.1:3000", "http://localhost:4000", "http://localhost:3000",], supports_credentials=True)
 
 @app.before_request
 def log_request_info():
@@ -54,6 +54,17 @@ def login():
 
 
 
+
+
+
+
+@app.route("/is-authenticated")
+def is_authenticated():
+    access_token = session.get("access_token")
+    return jsonify({"authenticated": bool(access_token)})
+
+
+
 # @app.route("/login", methods=["GET"])
 # def login():
 #     return "Login endpoint reached!"
@@ -68,11 +79,35 @@ def callback():
 
     return redirect(f"{FRONTEND_URL}/profile")
 
-@app.route('/user')
+
+
+# @app.route('/user')
+# def get_user():
+#     token_info = session.get("token_info", None)
+#     if not token_info:
+#         return jsonify({"error": "Not authenticated"}), 401
+
+#     sp_oauth = create_spotify_oauth()
+#     if sp_oauth.is_token_expired(token_info):
+#         token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+#         session["token_info"] = token_info
+
+#     sp = spotipy.Spotify(auth=token_info['access_token'])
+#     user_profile = sp.current_user()
+
+#     return jsonify({
+#         "display_name": user_profile['display_name'],
+#         "id": user_profile['id'],
+#         "email": user_profile.get('email'),
+#         "image": user_profile.get('images', [{}])[0].get('url') if user_profile.get('images') else None
+#     })
+
+
+@app.route("/user")
 def get_user():
-    token_info = session.get("token_info", None)
+    token_info = session.get("token_info")
     if not token_info:
-        return jsonify({"error": "Not authenticated"}), 401
+        return jsonify({"error": "unauthorized"}), 401
 
     sp_oauth = create_spotify_oauth()
     if sp_oauth.is_token_expired(token_info):
@@ -88,6 +123,8 @@ def get_user():
         "email": user_profile.get('email'),
         "image": user_profile.get('images', [{}])[0].get('url') if user_profile.get('images') else None
     })
+
+
 
 @app.route('/top-artists')
 def get_top_artists():
