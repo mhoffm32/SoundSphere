@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: express-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: express-service
+  template:
+    metadata:
+      labels:
+        app: express-service
+    spec:
+      containers:
+        - name: express-service
+          image: maddh7/express-service:latest
+          ports:
+            - containerPort: 5001 # replace with your port

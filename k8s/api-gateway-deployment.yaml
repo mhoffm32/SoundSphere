@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client
+  name: api-gateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: client
+      app: api-gateway
   template:
     metadata:
       labels:
-        app: client
+        app: api-gateway
     spec:
       containers:
-        - name: client
-          image: maddh7/client:latest
+        - name: api-gateway
+          image: maddh7/api-gateway:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 4000
