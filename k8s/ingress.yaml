@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: soundsphere-ingress
+  annotations:
+    # Static IP annotation stays the same
+    kubernetes.io/ingress.global-static-ip-name: "soundsphere-static-ip"
+spec:
+  # Tell Kubernetes you want to use the GCE Ingress controller
+  ingressClassName: "gce"
+
+  rules:
+    - host: 34.36.84.144.nip.io
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway-service
+                port:
+                  number: 80
+          - path: /client
+            pathType: Prefix
+            backend:
+              service:
+                name: client-service
+                port:
+                  number: 80
+          - path: /express
+            pathType: Prefix
+            backend:
+              service:
+                name: express-service-service
+                port:
+                  number: 80
+          - path: /flask
+            pathType: Prefix
+            backend:
+              service:
+                name: flask-service-service
+                port:
+                  number: 80

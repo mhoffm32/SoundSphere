@@ -26,6 +26,7 @@ jobs:
         with:
           context: ./client
           push: true
+          platforms: linux/amd64
           tags: ${{ secrets.DOCKER_USER }}/image1:latest
 
       - name: Build and push image 2
@@ -33,6 +34,7 @@ jobs:
         with:
           context: ./server/api-gateway
           push: true
+          platforms: linux/amd64
           tags: ${{ secrets.DOCKER_USER }}/image2:latest
 
       - name: Build and push image 3
@@ -40,6 +42,7 @@ jobs:
         with:
           context: ./server/flask-service
           push: true
+          platforms: linux/amd64
           tags: ${{ secrets.DOCKER_USER }}/image3:latest
 
       - name: Build and push image 4
@@ -47,6 +50,7 @@ jobs:
         with:
           context: ./server/express-service
           push: true
+          platforms: linux/amd64
           tags: ${{ secrets.DOCKER_USER }}/image4:latest
 
       - name: Authenticate to GCP
