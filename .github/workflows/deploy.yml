@@ -1,0 +1,61 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push image 1
+        uses: docker/build-push-action@v4
+        with:
+          context: ./client
+          push: true
+          tags: ${{ secrets.DOCKER_USER }}/image1:latest
+
+      - name: Build and push image 2
+        uses: docker/build-push-action@v4
+        with:
+          context: ./server/api-gateway
+          push: true
+          tags: ${{ secrets.DOCKER_USER }}/image2:latest
+
+      - name: Build and push image 3
+        uses: docker/build-push-action@v4
+        with:
+          context: ./server/flask-service
+          push: true
+          tags: ${{ secrets.DOCKER_USER }}/image3:latest
+
+      - name: Build and push image 4
+        uses: docker/build-push-action@v4
+        with:
+          context: ./server/express-service
+          push: true
+          tags: ${{ secrets.DOCKER_USER }}/image4:latest
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Set KUBECONFIG
+        run: echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -f k8s/
