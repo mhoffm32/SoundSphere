@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 4000
 
 # Run the dev script
-CMD ["nodemon", "gateway.js"]
+CMD ["node", "gateway.js"]
