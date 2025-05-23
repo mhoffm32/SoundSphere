@@ -12,6 +12,8 @@ spec:
       labels:
         app: client
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64 # <-- forces scheduling on amd64 nodes
       containers:
         - name: client
           image: maddh7/client:latest
