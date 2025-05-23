@@ -15,5 +15,6 @@ spec:
       containers:
         - name: flask-service
           image: maddh7/flask-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5002 # replace with your port

@@ -27,7 +27,7 @@ jobs:
           context: ./client
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKER_USER }}/image1:latest
+          tags: ${{ secrets.DOCKER_USER }}/client:latest
 
       - name: Build and push image 2
         uses: docker/build-push-action@v4
@@ -35,7 +35,7 @@ jobs:
           context: ./server/api-gateway
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKER_USER }}/image2:latest
+          tags: ${{ secrets.DOCKER_USER }}/api-gateway:latest
 
       - name: Build and push image 3
         uses: docker/build-push-action@v4
@@ -43,7 +43,7 @@ jobs:
           context: ./server/flask-service
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKER_USER }}/image3:latest
+          tags: ${{ secrets.DOCKER_USER }}/flask-service:latest
 
       - name: Build and push image 4
         uses: docker/build-push-action@v4
@@ -51,7 +51,7 @@ jobs:
           context: ./server/express-service
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKER_USER }}/image4:latest
+          tags: ${{ secrets.DOCKER_USER }}/express-service:latest
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1

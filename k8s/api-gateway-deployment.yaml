@@ -15,5 +15,6 @@ spec:
       containers:
         - name: api-gateway
           image: maddh7/api-gateway:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 4000

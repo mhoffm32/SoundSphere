@@ -15,5 +15,6 @@ spec:
       containers:
         - name: client
           image: maddh7/client:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000

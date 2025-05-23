@@ -15,5 +15,6 @@ spec:
       containers:
         - name: express-service
           image: maddh7/express-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5001 # replace with your port
